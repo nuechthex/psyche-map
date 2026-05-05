@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psyche Map — Intake</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+:root {
+  --bg: #0a0a0f;
+  --text: #e8e0d5;
+  --dim: #8a8070;
+  --gold: #c9a84c;
+  --gold-s: #e8d5a3;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.star {
+  position: absolute; border-radius: 50%; background: white;
+  animation: tw var(--d) ease-in-out infinite var(--dl);
+}
+@keyframes tw { 0%, 100% { opacity: var(--lo); } 50% { opacity: var(--hi); } }
+
+/* Name tag — appears after Q1 */
+#name-tag {
+  position: fixed;
+  top: 2rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.5em;
+  color: var(--gold);
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  z-index: 10;
+  pointer-events: none;
+}
+#name-tag.visible { opacity: 0.3; }
+
+/* Screens — all stacked, fade between them */
+.stage {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem 6rem;
+  opacity: 0;
+  transition: opacity 0.75s ease;
+  pointer-events: none;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.panel {
+  width: 100%;
+  max-width: 580px;
+}
+
+/* ─── WELCOME ─── */
+#welcome { text-align: center; }
+.glyph {
+  display: block;
+  font-size: 1rem;
+  color: var(--gold);
+  letter-spacing: 0.6em;
+  margin-bottom: 2.8rem;
+  opacity: 0.55;
+}
+#welcome h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 2.2rem;
+}
+#welcome .invite {
+  font-size: 1.02rem;
+  font-style: italic;
+  color: var(--dim);
+  line-height: 2.1;
+  margin-bottom: 3.8rem;
+}
+.btn-enter {
+  background: none;
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.42em;
+  padding: 0.9rem 2.8rem;
+  cursor: pointer;
+  transition: border-color 0.4s, background 0.4s;
+  text-transform: uppercase;
+}
+.btn-enter:hover {
+  border-color: rgba(201, 168, 76, 0.6);
+  background: rgba(201, 168, 76, 0.04);
+}
+
+/* ─── QUESTION ─── */
+#question-screen .panel {
+  /* question panel gets extra top space so it reads centred against the stage */
+  padding-top: 1rem;
+}
+.q-mark {
+  font-size: 0.58rem;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.55em;
+  color: var(--gold);
+  opacity: 0.28;
+  margin-bottom: 3rem;
+}
+.q-text {
+  font-size: clamp(1.05rem, 2.6vw, 1.32rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.95;
+  color: var(--text);
+  margin-bottom: 1.1rem;
+}
+.q-note {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--dim);
+  line-height: 1.8;
+  margin-bottom: 2.4rem;
+}
+.q-answer {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(138, 128, 112, 0.16);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.02rem;
+  font-weight: 300;
+  line-height: 1.85;
+  padding: 0.6rem 0.1rem 1.1rem;
+  resize: none;
+  outline: none;
+  min-height: 88px;
+  overflow-y: hidden;
+  transition: border-color 0.4s;
+  display: block;
+}
+.q-answer:focus { border-bottom-color: rgba(201, 168, 76, 0.28); }
+.q-answer::placeholder {
+  color: rgba(138, 128, 112, 0.32);
+  font-style: italic;
+}
+.q-footer {
+  margin-top: 2.6rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.q-hint {
+  font-size: 0.68rem;
+  font-style: italic;
+  color: rgba(138, 128, 112, 0.28);
+  flex-shrink: 0;
+}
+@media (max-width: 440px) { .q-hint { display: none; } }
+
+.btn-continue {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.42em;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.22;
+  transition: opacity 0.5s;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.btn-continue::after {
+  content: '—';
+  font-size: 0.9rem;
+  opacity: 0.5;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: normal;
+}
+.btn-continue.ready { opacity: 1; }
+.btn-continue:hover { opacity: 0.85; }
+
+/* Transition helper applied during fade-swap */
+.fading { opacity: 0 !important; transition: opacity 0.6s ease !important; }
+
+/* ─── CLOSING ─── */
+#closing { text-align: center; }
+#closing h2 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.88rem, 2.5vw, 1.15rem);
+  font-weight: 400;
+  letter-spacing: 0.38em;
+  color: var(--gold);
+  line-height: 1.85;
+  margin-bottom: 1.8rem;
+}
+#closing p {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--dim);
+  line-height: 2.1;
+}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="name-tag"></div>
+
+<div class="stage">
+
+  <!-- WELCOME -->
+  <div class="screen active" id="welcome">
+    <div class="panel">
+      <span class="glyph">✦</span>
+      <h1>PSYCHE MAP</h1>
+      <p class="invite">
+        A guided passage into the interior world.<br>
+        Twelve questions. No right answers.<br>
+        Take your time with each one.
+      </p>
+      <button class="btn-enter" id="beginBtn">Enter</button>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="screen" id="question-screen">
+    <div class="panel">
+      <div class="q-mark">✦</div>
+      <div class="q-text" id="qText"></div>
+      <div class="q-note" id="qNote"></div>
+      <textarea class="q-answer" id="answerField" rows="4" placeholder="Write here..."></textarea>
+      <div class="q-footer">
+        <span class="q-hint">shift + enter to continue</span>
+        <button class="btn-continue" id="continueBtn">continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="screen" id="closing">
+    <div class="panel">
+      <span class="glyph">✦</span>
+      <h2>YOUR MAP IS<br>BEING WOVEN</h2>
+      <p id="closingText"></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    text: "What is your name, and what do you want to be called here?",
+    note: null,
+    placeholder: "Your name...",
+    key: "name"
+  },
+  {
+    text: "Before anything shaped you — before school, before other people's opinions landed — what did you believe you were for?",
+    note: "Not what you wanted to be. What did you feel, in your body, that you were.",
+    placeholder: null,
+    key: "origin_sense"
+  },
+  {
+    text: "What is the hardest thing that was ever installed in you about yourself?",
+    note: "Not something that happened — a belief that formed because of what happened.",
+    placeholder: null,
+    key: "core_wound_belief"
+  },
+  {
+    text: "When your defences activate — when you feel threatened or exposed — what does that feel like from the inside?",
+    note: "Does it have a shape, a colour, a personality?",
+    placeholder: null,
+    key: "shadow_description"
+  },
+  {
+    text: "What is your interior world like when you are most at peace?",
+    note: "Give it an image — a landscape, a place, a feeling. Don't think. Just describe what arrives.",
+    placeholder: null,
+    key: "interior_landscape"
+  },
+  {
+    text: "Where does your soul speak to you?",
+    note: "Not in words — through what medium does the deepest part of you express itself, or catch in your chest?",
+    placeholder: null,
+    key: "soul_voice"
+  },
+  {
+    text: "Where do you live in potential that never quite becomes real?",
+    note: "What stalls at the moment it becomes something that could be judged?",
+    placeholder: null,
+    key: "puer_pattern"
+  },
+  {
+    text: "Quick — before you can edit: if your soul had five words, what are they?",
+    note: null,
+    placeholder: "Five words, unhesitatingly...",
+    key: "five_words"
+  },
+  {
+    text: "What did you believe you were for, before the wound had any say? And what survived the worst collapse of your life?",
+    note: null,
+    placeholder: null,
+    key: "surviving_self"
+  },
+  {
+    text: "In stories — any stories, myths, films, books, games — what figures or moments make you feel recognised rather than just moved?",
+    note: null,
+    placeholder: null,
+    key: "mythic_recognition"
+  },
+  {
+    text: "What symbolic languages do you already live inside?",
+    note: "Astrology, tarot, mythology, religion, cultural story. What systems have always felt like they were speaking directly to you?",
+    placeholder: null,
+    key: "symbolic_languages"
+  },
+  {
+    text: "Looking at everything you've just said — what is the central unanswered question of your life right now?",
+    note: null,
+    placeholder: null,
+    key: "central_question"
+  }
+];
+
+let currentQ = 0;
+let answers = {};
+let userName = null;
+let transitioning = false;
+
+const welcomeEl   = document.getElementById('welcome');
+const questionEl  = document.getElementById('question-screen');
+const closingEl   = document.getElementById('closing');
+const nameTagEl   = document.getElementById('name-tag');
+const qTextEl     = document.getElementById('qText');
+const qNoteEl     = document.getElementById('qNote');
+const answerEl    = document.getElementById('answerField');
+const continueBtnEl = document.getElementById('continueBtn');
+const closingTextEl = document.getElementById('closingText');
+
+// If intake already complete, go straight to map
+if (localStorage.getItem('psyche_intake')) {
+  window.location.replace('map.html');
+}
+
+// Restore in-progress session
+const saved = localStorage.getItem('psyche_intake_progress');
+if (saved) {
+  try {
+    const p = JSON.parse(saved);
+    answers  = p.answers  || {};
+    userName = p.name     || null;
+    currentQ = Math.min(p.currentQ || 0, QUESTIONS.length - 1);
+    // Skip welcome, jump straight in
+    transitionTo(welcomeEl, questionEl, () => {
+      if (userName) revealNameTag();
+      renderQuestion(currentQ);
+      focusField();
+    });
+  } catch(e) { /* corrupted — start fresh */ }
+}
+
+// Begin button
+document.getElementById('beginBtn').addEventListener('click', () => {
+  transitionTo(welcomeEl, questionEl, () => {
+    renderQuestion(0);
+    focusField();
+  });
+});
+
+// Answer field interactions
+answerEl.addEventListener('input', () => {
+  continueBtnEl.classList.toggle('ready', answerEl.value.trim().length > 0);
+  growTextarea();
+});
+
+answerEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.shiftKey) {
+    e.preventDefault();
+    advance();
+  }
+});
+
+continueBtnEl.addEventListener('click', advance);
+
+// ── Render a question into the single question screen ──────────────────────
+function renderQuestion(index) {
+  const q = QUESTIONS[index];
+
+  qTextEl.textContent = q.text;
+
+  if (q.note) {
+    qNoteEl.textContent = q.note;
+    qNoteEl.style.display = '';
+  } else {
+    qNoteEl.textContent = '';
+    qNoteEl.style.display = 'none';
+  }
+
+  answerEl.placeholder = q.placeholder || 'Write here...';
+  answerEl.value       = answers[q.key] || '';
+  answerEl.style.height = 'auto';
+  growTextarea();
+
+  continueBtnEl.classList.toggle('ready', answerEl.value.trim().length > 0);
+}
+
+// ── Advance to next question or finish ──────────────────────────────────────
+function advance() {
+  if (transitioning) return;
+  const val = answerEl.value.trim();
+  if (val) {
+    answers[QUESTIONS[currentQ].key] = val;
+    if (currentQ === 0) {
+      userName = extractName(val);
+      revealNameTag();
+    }
+  }
+  saveProgress();
+
+  if (currentQ < QUESTIONS.length - 1) {
+    transitioning = true;
+    // Fade the panel content, swap question, fade back
+    questionEl.classList.add('fading');
+    setTimeout(() => {
+      currentQ++;
+      renderQuestion(currentQ);
+      questionEl.classList.remove('fading');
+      transitioning = false;
+      focusField();
+    }, 620);
+  } else {
+    completeIntake();
+  }
+}
+
+// ── Save / Complete ────────────────────────────────────────────────────────
+function saveProgress() {
+  localStorage.setItem('psyche_intake_progress', JSON.stringify({
+    answers, name: userName, currentQ,
+    updatedAt: new Date().toISOString()
+  }));
+}
+
+function completeIntake() {
+  const intake = {
+    answers,
+    name: userName,
+    completedAt: new Date().toISOString(),
+    version: 1
+  };
+  localStorage.setItem('psyche_intake', JSON.stringify(intake));
+  localStorage.removeItem('psyche_intake_progress');
+
+  closingTextEl.textContent = userName
+    ? `${userName}, everything you have offered is held.`
+    : 'Everything you have offered is held.';
+
+  transitionTo(questionEl, closingEl, () => {
+    setTimeout(() => window.location.href = 'map.html', 2600);
+  });
+}
+
+// ── UI helpers ─────────────────────────────────────────────────────────────
+function transitionTo(from, to, callback) {
+  from.classList.remove('active');
+  setTimeout(() => {
+    to.classList.add('active');
+    if (callback) callback();
+  }, 780);
+}
+
+function revealNameTag() {
+  nameTagEl.textContent = userName ? userName.toUpperCase() : '';
+  nameTagEl.classList.add('visible');
+}
+
+function focusField() {
+  // Delay keeps focus from firing before the fade lands
+  setTimeout(() => answerEl.focus(), 680);
+}
+
+function growTextarea() {
+  answerEl.style.height = 'auto';
+  answerEl.style.height = Math.max(88, answerEl.scrollHeight) + 'px';
+}
+
+function extractName(raw) {
+  // Take whatever comes before first comma, slash, or second word boundary
+  // e.g. "Mit, and I want to be called Mit" → "Mit"
+  // e.g. "Miriam / Miri" → "Miriam"
+  const cleaned = raw.split(/[,\/\n]/)[0].trim();
+  // If multi-word, use just the first word as call-name
+  return cleaned.split(/\s+/)[0] || raw;
+}
+
+// ── Stars ──────────────────────────────────────────────────────────────────
+(function buildStars() {
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 130; i++) {
+    const e = document.createElement('div');
+    e.className = 'star';
+    const sz = Math.random() * 2 + 0.4;
+    e.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--lo:${(Math.random()*.15+.04).toFixed(2)};--hi:${(Math.random()*.45+.25).toFixed(2)};--d:${(Math.random()*4+2).toFixed(1)}s;--dl:-${(Math.random()*4).toFixed(1)}s;`;
+    s.appendChild(e);
+  }
+})();
+</script>
+</body>
+</html>

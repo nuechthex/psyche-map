@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psyche Map</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+:root {
+  --bg: #0a0a0f;
+  --text: #e8e0d5;
+  --dim: #8a8070;
+  --gold: #c9a84c;
+  --gold-s: #e8d5a3;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  min-height: 100vh;
+}
+#stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.star {
+  position: absolute; border-radius: 50%; background: white;
+  animation: tw var(--d) ease-in-out infinite var(--dl);
+}
+@keyframes tw { 0%, 100% { opacity: var(--lo); } 50% { opacity: var(--hi); } }
+
+.stage {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.stage.in { opacity: 1; }
+
+.glyph {
+  display: block;
+  font-size: 1rem;
+  color: var(--gold);
+  letter-spacing: 0.6em;
+  margin-bottom: 2.8rem;
+  opacity: 0.55;
+}
+
+h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.9rem, 3vw, 1.3rem);
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 1.8rem;
+  line-height: 1.8;
+}
+
+.sub {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--dim);
+  line-height: 2.1;
+  margin-bottom: 3.5rem;
+  max-width: 440px;
+}
+
+.pulse-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  margin: 0 auto 3rem;
+  position: relative;
+  animation: pulse 3.5s ease-in-out infinite;
+}
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.12);
+  animation: pulse 3.5s ease-in-out infinite 0.6s;
+}
+.pulse-ring::after {
+  content: '✦';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--gold);
+  opacity: 0.4;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+.restart {
+  font-family: 'Cinzel', serif;
+  font-size: 0.52rem;
+  letter-spacing: 0.4em;
+  color: var(--dim);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(138, 128, 112, 0.2);
+  padding-bottom: 0.1rem;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+  text-transform: uppercase;
+}
+.restart:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<div class="stage" id="stage">
+  <div class="pulse-ring"></div>
+  <span class="glyph">✦</span>
+  <h1 id="headline">YOUR MAP IS<br>BEING WOVEN</h1>
+  <p class="sub" id="sub">The cartography of your interior world is taking shape.<br>This page will hold your full psyche map.</p>
+  <a class="restart" href="intake.html" id="restartLink">begin again</a>
+</div>
+
+<script>
+// If no intake exists, redirect back
+const raw = localStorage.getItem('psyche_intake');
+if (!raw) {
+  window.location.replace('intake.html');
+}
+
+let intake = null;
+try { intake = JSON.parse(raw); } catch(e) {}
+
+if (intake && intake.name) {
+  document.getElementById('headline').innerHTML =
+    intake.name.toUpperCase() + '<br>YOUR MAP IS BEING WOVEN';
+  document.getElementById('sub').textContent =
+    'The cartography of your interior world is taking shape.';
+}
+
+// Restart clears localStorage
+document.getElementById('restartLink').addEventListener('click', e => {
+  e.preventDefault();
+  localStorage.removeItem('psyche_intake');
+  localStorage.removeItem('psyche_intake_progress');
+  window.location.href = 'intake.html';
+});
+
+// Fade in
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  document.getElementById('stage').classList.add('in');
+}));
+
+// Stars
+(function() {
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 130; i++) {
+    const e = document.createElement('div');
+    e.className = 'star';
+    const sz = Math.random() * 2 + 0.4;
+    e.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--lo:${(Math.random()*.15+.04).toFixed(2)};--hi:${(Math.random()*.45+.25).toFixed(2)};--d:${(Math.random()*4+2).toFixed(1)}s;--dl:-${(Math.random()*4).toFixed(1)}s;`;
+    s.appendChild(e);
+  }
+})();
+</script>
+</body>
+</html>
