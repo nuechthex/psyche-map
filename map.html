@@ -7,160 +7,554 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
 :root {
-  --bg: #0a0a0f;
-  --text: #e8e0d5;
-  --dim: #8a8070;
-  --gold: #c9a84c;
-  --gold-s: #e8d5a3;
+  --bg:#0a0a0f; --text:#e8e0d5; --dim:#8a8070;
+  --gold:#c9a84c; --gold-s:#e8d5a3;
+  --primary:#4a7c6a; --accent:#c9a84c; --surface:rgba(201,168,76,.04);
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Cormorant Garamond', serif;
-  min-height: 100vh;
-}
-#stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-.star {
-  position: absolute; border-radius: 50%; background: white;
-  animation: tw var(--d) ease-in-out infinite var(--dl);
-}
-@keyframes tw { 0%, 100% { opacity: var(--lo); } 50% { opacity: var(--hi); } }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif;min-height:100vh;overflow-x:hidden;}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.star{position:absolute;border-radius:50%;background:white;animation:tw var(--d) ease-in-out infinite var(--dl);}
+@keyframes tw{0%,100%{opacity:var(--lo);}50%{opacity:var(--hi);}}
+@keyframes sp{0%,100%{opacity:.28;}50%{opacity:.65;}}
+.sp-pulse{animation:sp 4.5s ease-in-out infinite;}
 
-.stage {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-.stage.in { opacity: 1; }
+.page{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:3rem 1.5rem 6rem;opacity:0;transition:opacity 1.1s ease;}
+.page.in{opacity:1;}
 
-.glyph {
-  display: block;
-  font-size: 1rem;
-  color: var(--gold);
-  letter-spacing: 0.6em;
-  margin-bottom: 2.8rem;
-  opacity: 0.55;
-}
+.hdr{text-align:center;margin-bottom:4rem;}
+.hdr h1{font-family:'Cinzel',serif;font-size:clamp(1.1rem,4vw,1.9rem);font-weight:400;letter-spacing:.35em;color:var(--gold);margin-bottom:.5rem;}
+.hdr p{font-size:.88rem;font-style:italic;color:var(--dim);letter-spacing:.12em;}
 
-h1 {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(0.9rem, 3vw, 1.3rem);
-  font-weight: 400;
-  letter-spacing: 0.4em;
-  color: var(--gold);
-  margin-bottom: 1.8rem;
-  line-height: 1.8;
-}
+.myth{border-left:2px solid var(--gold);padding:1.6rem 1.8rem;background:var(--surface);margin-bottom:4rem;position:relative;}
+.myth::before{content:'✦';position:absolute;top:-.65rem;left:-.55rem;color:var(--gold);background:var(--bg);font-size:.9rem;padding:0 .2rem;}
+.myth-lbl{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.35em;color:var(--gold);display:block;margin-bottom:.8rem;}
+.myth p{font-size:1rem;font-style:italic;line-height:1.9;color:var(--gold-s);}
 
-.sub {
-  font-size: 0.95rem;
-  font-style: italic;
-  color: var(--dim);
-  line-height: 2.1;
-  margin-bottom: 3.5rem;
-  max-width: 440px;
-}
+.sec{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.4em;color:var(--dim);text-align:center;margin:3rem 0 1.5rem;position:relative;}
+.sec::before,.sec::after{content:'';position:absolute;top:50%;width:28%;height:1px;background:linear-gradient(to right,transparent,rgba(138,128,112,.25));}
+.sec::before{right:53%;}
+.sec::after{left:53%;background:linear-gradient(to left,transparent,rgba(138,128,112,.25));}
 
-.pulse-ring {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 1px solid rgba(201, 168, 76, 0.2);
-  margin: 0 auto 3rem;
-  position: relative;
-  animation: pulse 3.5s ease-in-out infinite;
-}
-.pulse-ring::before {
-  content: '';
-  position: absolute;
-  inset: 12px;
-  border-radius: 50%;
-  border: 1px solid rgba(201, 168, 76, 0.12);
-  animation: pulse 3.5s ease-in-out infinite 0.6s;
-}
-.pulse-ring::after {
-  content: '✦';
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  color: var(--gold);
-  opacity: 0.4;
-}
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.06); opacity: 1; }
-}
+.map-wrap{width:100%;margin-bottom:1rem;}
+.map-wrap svg{width:100%;height:auto;display:block;}
 
-.restart {
-  font-family: 'Cinzel', serif;
-  font-size: 0.52rem;
-  letter-spacing: 0.4em;
-  color: var(--dim);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(138, 128, 112, 0.2);
-  padding-bottom: 0.1rem;
-  opacity: 0.5;
-  transition: opacity 0.3s;
-  text-transform: uppercase;
-}
-.restart:hover { opacity: 0.85; }
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1rem;}
+@media(max-width:520px){.grid{grid-template-columns:1fr;}}
+.card{padding:1.2rem 1.4rem 1.2rem 1.6rem;position:relative;overflow:hidden;border-radius:1px;border:1px solid rgba(138,128,112,.1);transition:transform .25s,box-shadow .25s;cursor:default;}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.45);}
+.card::before{content:'';position:absolute;inset:0;background:var(--c);opacity:.05;transition:opacity .25s;}
+.card:hover::before{opacity:.1;}
+.cb{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c);opacity:.85;}
+.cl{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.22em;color:var(--c);display:block;margin-bottom:.3rem;}
+.ct{font-size:1rem;font-weight:400;margin-bottom:.4rem;color:var(--text);line-height:1.3;}
+.cd{font-size:.82rem;font-style:italic;color:var(--dim);line-height:1.6;}
+.tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;}
+.tag{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:.12rem .45rem;border:1px solid var(--c);border-radius:20px;color:var(--c);opacity:.65;}
+
+.five{display:flex;justify-content:center;flex-wrap:wrap;gap:.8rem;margin:1.5rem 0 3rem;}
+.fw{font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.28em;color:var(--gold);padding:.35rem .9rem;border:1px solid rgba(201,168,76,.3);}
+
+.actions{text-align:center;margin-top:3rem;display:flex;flex-direction:column;align-items:center;gap:1.5rem;}
+.btn-context{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.35em;color:var(--gold);border:1px solid rgba(201,168,76,.28);background:none;padding:.9rem 2.6rem;cursor:pointer;transition:border-color .35s,background .35s;text-transform:uppercase;}
+.btn-context:hover{border-color:rgba(201,168,76,.65);background:rgba(201,168,76,.05);}
+.restart{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.4em;color:var(--dim);text-decoration:none;border-bottom:1px solid rgba(138,128,112,.2);padding-bottom:.1rem;opacity:.4;transition:opacity .3s;text-transform:uppercase;}
+.restart:hover{opacity:.8;}
+
+.ctx-wrap{display:none;width:100%;max-width:640px;margin-top:1.5rem;text-align:left;}
+.ctx-wrap.open{display:block;}
+.ctx-box{background:rgba(0,0,0,.35);border:1px solid rgba(138,128,112,.18);padding:1.2rem;font-size:.7rem;font-family:'Courier New',monospace;color:var(--dim);line-height:1.65;white-space:pre-wrap;max-height:340px;overflow-y:auto;}
+.copy-note{font-size:.7rem;font-style:italic;color:var(--dim);opacity:.5;margin-top:.6rem;text-align:center;}
 </style>
 </head>
 <body>
 <div id="stars"></div>
 
-<div class="stage" id="stage">
-  <div class="pulse-ring"></div>
-  <span class="glyph">✦</span>
-  <h1 id="headline">YOUR MAP IS<br>BEING WOVEN</h1>
-  <p class="sub" id="sub">The cartography of your interior world is taking shape.<br>This page will hold your full psyche map.</p>
-  <a class="restart" href="intake.html" id="restartLink">begin again</a>
+<div class="page" id="page">
+  <div class="hdr">
+    <h1 id="pageTitle">PSYCHE MAP</h1>
+    <p>a cartography of the interior world</p>
+  </div>
+
+  <div class="myth">
+    <span class="myth-lbl">THE MYTH</span>
+    <p id="mythText"></p>
+  </div>
+
+  <div class="sec">RELATIONSHIP MAP</div>
+  <div class="map-wrap" id="mapWrap"></div>
+
+  <div class="sec" id="landscapeSec">THE INTERIOR</div>
+  <div class="grid" style="grid-template-columns:1fr" id="landscapeCard"></div>
+
+  <div class="sec">AUTONOMOUS FORCES</div>
+  <div class="grid" id="forcesGrid"></div>
+
+  <div class="sec">THE WOUND</div>
+  <div class="grid" style="grid-template-columns:1fr" id="woundCard"></div>
+
+  <div class="sec">WHAT IS BEGINNING</div>
+  <div class="grid" style="grid-template-columns:1fr" id="growingCard"></div>
+
+  <div class="sec">FIVE WORDS</div>
+  <div class="five" id="fiveWords"></div>
+
+  <div class="actions">
+    <button class="btn-context" id="contextBtn">Generate Claude Context</button>
+    <div class="ctx-wrap" id="ctxWrap">
+      <div class="ctx-box" id="ctxBox"></div>
+      <p class="copy-note">Copy the block above — paste into a new Claude.ai conversation.</p>
+    </div>
+    <a href="#" class="restart" id="restartLink">begin again</a>
+  </div>
 </div>
 
 <script>
-// If no intake exists, redirect back
+// ── Guard: no intake → back to intake ────────────────────────────────────
 const raw = localStorage.getItem('psyche_intake');
-if (!raw) {
-  window.location.replace('intake.html');
+if (!raw) { window.location.replace('intake.html'); }
+let intake;
+try { intake = JSON.parse(raw); } catch(e) { window.location.replace('intake.html'); }
+const A    = intake.answers || {};
+const name = intake.name   || 'Unknown';
+const allText = Object.values(A).filter(Boolean).join(' ');
+
+// ── Text analysis ─────────────────────────────────────────────────────────
+const ELEMENT_KEYS = {
+  water: ['ocean','sea','river','flow','wave','water','stream','lake','rain','tide','depth','drown','submerge','current','pool','shore','fluid','drift','mist','fog','tears','swimming'],
+  fire:  ['fire','flame','burn','ember','spark','ash','blaze','fierce','heat','ignite','consume','rage','fury','bright','flare','smouldering','scorch','passion','alive'],
+  earth: ['soil','ground','root','stone','rock','mountain','forest','tree','valley','field','garden','earth','settle','heavy','solid','dense','weight','anchor','bone','clay','grounded','rooted'],
+  air:   ['wind','breath','sky','cloud','float','rise','thought','mind','idea','clear','free','wing','soar','vast','expansive','open','light','space','invisible'],
+  void:  ['dark','shadow','star','cosmos','infinite','universe','constellation','night','abyss','silence','void','mystery','unknown','beyond','deep','space','celestial','dark matter']
+};
+
+const DARK_WORDS  = ['dark','shadow','night','black','heavy','depth','beneath','underneath','abyss','void','weight','deep','buried','sunk','silence'];
+const LIGHT_WORDS = ['light','bright','glow','shine','open','clear','sky','golden','radiant','luminous','pale','soft','warm','morning','sun'];
+
+function scoreElement(text) {
+  const lower = text.toLowerCase();
+  const scores = {};
+  for (const [el, words] of Object.entries(ELEMENT_KEYS)) {
+    scores[el] = words.reduce((n, w) => n + (lower.match(new RegExp(`\\b${w.replace(/\s/,'\\s')}`, 'g')) || []).length, 0);
+  }
+  return Object.entries(scores).sort((a, b) => b[1] - a[1]);
 }
 
-let intake = null;
-try { intake = JSON.parse(raw); } catch(e) {}
-
-if (intake && intake.name) {
-  document.getElementById('headline').innerHTML =
-    intake.name.toUpperCase() + '<br>YOUR MAP IS BEING WOVEN';
-  document.getElementById('sub').textContent =
-    'The cartography of your interior world is taking shape.';
+function scoreLightness(text) {
+  const lower = text.toLowerCase();
+  const d = DARK_WORDS.reduce((n, w)  => n + (lower.includes(w) ? 1 : 0), 0);
+  const l = LIGHT_WORDS.reduce((n, w) => n + (lower.includes(w) ? 1 : 0), 0);
+  if (l > d * 1.6) return 'light';
+  if (l > d) return 'medium';
+  return 'dark';
 }
 
-// Restart clears localStorage
-document.getElementById('restartLink').addEventListener('click', e => {
-  e.preventDefault();
-  localStorage.removeItem('psyche_intake');
-  localStorage.removeItem('psyche_intake_progress');
-  window.location.href = 'intake.html';
+const elementRanking = scoreElement(allText);
+const element  = elementRanking[0][1] > 0 ? elementRanking[0][0] : 'void';
+const lightness = scoreLightness(allText);
+
+// ── Palettes ──────────────────────────────────────────────────────────────
+// Each palette: bg, text, dim, gold, golds (gold-s), primary, accent, surface
+const PALETTES = {
+  water: {
+    dark:   { bg:'#06101a', text:'#d4e8f2', dim:'#587888', gold:'#70a8c4', golds:'#a0c8e0', primary:'#2a6080', accent:'#4898b8', surface:'rgba(42,96,128,.06)' },
+    medium: { bg:'#08121e', text:'#d8ecf6', dim:'#688898', gold:'#80b8d0', golds:'#b0d4e8', primary:'#3a7090', accent:'#5aaac8', surface:'rgba(58,112,144,.06)' },
+    light:  { bg:'#0a1420', text:'#ddf0f8', dim:'#7898a8', gold:'#90c4dc', golds:'#c0e0f0', primary:'#4a80a0', accent:'#68bcd8', surface:'rgba(74,128,160,.06)' }
+  },
+  fire: {
+    dark:   { bg:'#0e0906', text:'#eedad0', dim:'#7a5848', gold:'#c05828', golds:'#e09060', primary:'#782210', accent:'#c04428', surface:'rgba(120,34,16,.06)' },
+    medium: { bg:'#100c08', text:'#f0e0cc', dim:'#907060', gold:'#d06830', golds:'#f0a060', primary:'#883010', accent:'#cc5428', surface:'rgba(136,48,16,.06)' },
+    light:  { bg:'#120e08', text:'#f4e4d0', dim:'#a08060', gold:'#e07838', golds:'#f8b070', primary:'#9a4018', accent:'#dc6438', surface:'rgba(154,64,24,.06)' }
+  },
+  earth: {
+    dark:   { bg:'#0c0b07', text:'#e0d8c2', dim:'#786850', gold:'#988040', golds:'#c4a860', primary:'#58481e', accent:'#987840', surface:'rgba(88,72,30,.06)' },
+    medium: { bg:'#0e0d09', text:'#e8e0cc', dim:'#887860', gold:'#a89048', golds:'#d0b870', primary:'#685828', accent:'#a88848', surface:'rgba(104,88,40,.06)' },
+    light:  { bg:'#100f0a', text:'#eee8d2', dim:'#988870', gold:'#b89850', golds:'#dcc880', primary:'#786830', accent:'#b89850', surface:'rgba(120,104,48,.06)' }
+  },
+  air: {
+    dark:   { bg:'#090b12', text:'#dae2f0', dim:'#5868a0', gold:'#6888c0', golds:'#98b8e0', primary:'#384468', accent:'#6080b8', surface:'rgba(56,68,104,.06)' },
+    medium: { bg:'#0b0d16', text:'#e0e8f6', dim:'#6878b0', gold:'#7898d0', golds:'#a8c8ec', primary:'#485478', accent:'#7090c8', surface:'rgba(72,84,120,.06)' },
+    light:  { bg:'#0d101a', text:'#e8eef8', dim:'#7888c0', gold:'#88a8e0', golds:'#b8d0f4', primary:'#58649a', accent:'#80a0d8', surface:'rgba(88,100,154,.06)' }
+  },
+  void: {
+    dark:   { bg:'#060418', text:'#dcd8f2', dim:'#685e8e', gold:'#7e58c0', golds:'#ae88e0', primary:'#381e60', accent:'#7050b8', surface:'rgba(56,30,96,.06)' },
+    medium: { bg:'#08061e', text:'#e2e0f4', dim:'#78709e', gold:'#9068d0', golds:'#be98e8', primary:'#482870', accent:'#8060c8', surface:'rgba(72,40,112,.06)' },
+    light:  { bg:'#0a0820', text:'#eae8f8', dim:'#887eb0', gold:'#a080e0', golds:'#caaef4', primary:'#583080', accent:'#9070d8', surface:'rgba(88,48,128,.06)' }
+  }
+};
+
+const palette = (() => {
+  const p = PALETTES[element]?.[lightness];
+  return p || PALETTES.void.dark;
+})();
+
+// Apply to CSS custom properties + body bg immediately
+const root = document.documentElement;
+root.style.setProperty('--bg',      palette.bg);
+root.style.setProperty('--text',    palette.text);
+root.style.setProperty('--dim',     palette.dim);
+root.style.setProperty('--gold',    palette.gold);
+root.style.setProperty('--gold-s',  palette.golds);
+root.style.setProperty('--primary', palette.primary);
+root.style.setProperty('--accent',  palette.accent);
+root.style.setProperty('--surface', palette.surface);
+document.body.style.background = palette.bg;
+document.body.style.color      = palette.text;
+
+// ── Extraction helpers ────────────────────────────────────────────────────
+const STOP = new Set(['a','an','the','is','it','of','to','in','and','or','but','i','my','me','you','your','we','our','this','that','these','those','what','when','where','how','very','just','so','not','was','be','been','have','had','do','did','will','would','could','should','feel','felt','think','know','like','get','go','there','they','then','with','from','for','about','into','through','some','more','all','one','can','has','if','as','up','by','at','on','its','it\'s','were','are','am','said','say','here','her','him','his','she','he']);
+
+function firstClause(text, max) {
+  if (!text) return '';
+  const s = text.split(/[.!?\n]/)[0].trim();
+  return s.length > max ? s.slice(0, max).trim() + '…' : s;
+}
+
+function shortLabel(text, maxWords) {
+  if (!text) return '';
+  return text.replace(/[^a-zA-Z\s'\-]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 2 && !STOP.has(w.toLowerCase()))
+    .slice(0, maxWords)
+    .join(' ');
+}
+
+function tagsFromText(text, n) {
+  if (!text) return [];
+  return text.replace(/[^a-zA-Z\s'\-]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 3 && !STOP.has(w.toLowerCase()))
+    .slice(0, n)
+    .map(w => w.toLowerCase());
+}
+
+function truncate(str, max) {
+  if (!str) return '';
+  return str.length > max ? str.slice(0, max - 1) + '…' : str;
+}
+
+function extractLandscapeName(text) {
+  if (!text) return 'The Interior';
+  const lower = text.toLowerCase();
+  // Named "the [X]" pattern
+  const m = lower.match(/\bthe\s+([a-z]+(?:\s+[a-z]+)?)/);
+  if (m) {
+    const candidate = m[1].trim();
+    if (!STOP.has(candidate)) return 'The ' + candidate.replace(/\b\w/g, c => c.toUpperCase());
+  }
+  // Common landscape words
+  const landscapes = ['valley','forest','ocean','sea','desert','meadow','mountain','plain','lake','river','field','garden','cave','shore','clearing','woods','highland','coast','moor','library','tower','island','void','darkness','silence','depth','space','light','room','place'];
+  for (const l of landscapes) if (lower.includes(l)) return 'The ' + l.charAt(0).toUpperCase() + l.slice(1);
+  // Fallback: first meaningful words
+  const w = shortLabel(text, 2);
+  return w ? 'The ' + w.replace(/\b\w/g, c => c.toUpperCase()) : 'The Interior';
+}
+
+function extractShadowName(text) {
+  if (!text) return 'The Shadow';
+  const lower = text.toLowerCase();
+  // Named "the [X]" pattern — avoid common non-nouns
+  const skip = new Set(['feeling','sense','part','way','thing','time','kind','sort','whole','place','moment','state','mode','version']);
+  const m = lower.match(/\bthe\s+([a-z]+)/);
+  if (m && !skip.has(m[1])) return 'The ' + m[1].charAt(0).toUpperCase() + m[1].slice(1);
+  // Shape words
+  const shapes = ['wall','cage','shell','fog','glass','ice','armour','armor','cloud','mask','blade','vice','weight','voice','presence','force','block','barrier','veil','shroud','sphere','wall','door','lock','storm','frost','darkness'];
+  for (const s of shapes) if (lower.includes(s)) return 'The ' + s.charAt(0).toUpperCase() + s.slice(1);
+  return 'The Shadow';
+}
+
+function soulIcon(text) {
+  if (!text) return '♪';
+  const lower = text.toLowerCase();
+  if (/music|song|melody|sound|listen|chord|note|instrument|sing|piano|guitar|voice/.test(lower)) return '♪';
+  if (/write|writing|word|text|story|poem|journal|prose|letter/.test(lower)) return '✍';
+  if (/paint|draw|art|visual|colour|color|image|photograph|film/.test(lower)) return '◈';
+  if (/dance|move|body|physical|movement|run|walk|breath/.test(lower)) return '❧';
+  if (/nature|tree|forest|ocean|water|garden|sky|land/.test(lower)) return '✦';
+  if (/silence|still|quiet|meditation|contemplat/.test(lower)) return '◎';
+  return '♪';
+}
+
+// ── Five words ────────────────────────────────────────────────────────────
+const ESSENCE = ['pure','precise','resonant','graceful','luminous','fierce','quiet','deep','clear','wild','tender','strong','still','vast','warm','dark','bright','sharp','soft','whole','alive','raw','true','open','hidden','grounded','burning','flowing','knowing','faithful','honest','gentle','ancient','patient','radiant','shadowed','dreaming','awake','intuitive','protective','resilient','layered','profound','becoming','seeking','offering','translucent','limitless','rooted','searching','reaching','holding','carrying','watching'];
+
+const ELEMENT_DEFAULTS = {
+  water: ['Deep','Flowing','Still','Searching','Vast'],
+  fire:  ['Fierce','Burning','Alive','Raw','True'],
+  earth: ['Grounded','Patient','Rooted','Holding','Ancient'],
+  air:   ['Clear','Expansive','Reaching','Intuitive','Free'],
+  void:  ['Luminous','Shadowed','Vast','Dreaming','Profound']
+};
+
+function deriveFiveWords() {
+  // Honour explicit five_words answer if it exists (old intake format)
+  if (A.five_words) {
+    const direct = A.five_words.split(/[,·•\s\/]+/).map(w => w.trim()).filter(w => w.length > 1).slice(0, 5);
+    if (direct.length >= 3) return direct.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  }
+  const lower = allText.toLowerCase();
+  const found = ESSENCE
+    .filter(w => lower.includes(w))
+    .map(w => ({ w, n: (lower.match(new RegExp(`\\b${w}\\b`, 'g')) || []).length }))
+    .sort((a, b) => b.n - a.n)
+    .map(x => x.w.charAt(0).toUpperCase() + x.w.slice(1));
+  if (found.length >= 5) return found.slice(0, 5);
+  const defaults = (ELEMENT_DEFAULTS[element] || ELEMENT_DEFAULTS.void)
+    .filter(d => !found.map(f => f.toLowerCase()).includes(d.toLowerCase()));
+  return [...found, ...defaults].slice(0, 5);
+}
+
+// ── Myth sentence ─────────────────────────────────────────────────────────
+function deriveMythSentence() {
+  const origin   = firstClause(A.origin_sense, 85);
+  const wound    = firstClause(A.core_wound_belief, 70);
+  const collapse = firstClause(A.collapse_threshold || A.surviving_self, 85);
+  const growing  = firstClause(A.whats_growing, 70);
+  const parts = [];
+  if (origin)   parts.push(origin.charAt(0).toUpperCase() + origin.slice(1));
+  if (wound)    parts.push('shaped by the belief that ' + wound.charAt(0).toLowerCase() + wound.slice(1));
+  if (collapse) parts.push('through the threshold — ' + collapse.charAt(0).toLowerCase() + collapse.slice(1));
+  if (growing)  parts.push('and now: ' + growing.charAt(0).toLowerCase() + growing.slice(1));
+  if (!parts.length) return 'The map is being drawn. The pattern is already operating.';
+  return parts.join('. ') + '.';
+}
+
+// ── Derive everything ─────────────────────────────────────────────────────
+const landscapeName = extractLandscapeName(A.interior_landscape);
+const shadowName    = extractShadowName(A.shadow_description);
+const fiveWords     = deriveFiveWords();
+const mythSentence  = deriveMythSentence();
+
+const soulLabelRaw  = shortLabel(A.soul_voice || '', 4)       || 'Soul Voice';
+const carryLabelRaw = shortLabel(A.what_you_carry || A.puer_pattern || '', 4) || 'What You Carry';
+const woundLabelRaw = shortLabel(A.core_wound_belief || '', 4) || 'The Wound';
+const growLabelRaw  = shortLabel(A.whats_growing || '', 4)    || 'What Begins';
+const threshLabelRaw= shortLabel(A.collapse_threshold || A.surviving_self || '', 4) || 'The Threshold';
+const maskLabelRaw  = shortLabel(A.the_mask || A.mythic_recognition || '', 4) || 'The Persona';
+
+// ── SVG colour helpers ────────────────────────────────────────────────────
+function hex2rgba(hex, alpha) {
+  const clean = (hex||'#808080').replace('#','');
+  const r = parseInt(clean.slice(0,2), 16) || 128;
+  const g = parseInt(clean.slice(2,4), 16) || 128;
+  const b = parseInt(clean.slice(4,6), 16) || 128;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function lightenHex(hex, amt) {
+  const clean = (hex||'#0a0a0f').replace('#','');
+  const r = Math.min(255, (parseInt(clean.slice(0,2)||'0a',16)||10) + amt);
+  const g = Math.min(255, (parseInt(clean.slice(2,4)||'0a',16)||10) + amt);
+  const b = Math.min(255, (parseInt(clean.slice(4,6)||'0f',16)||15) + amt);
+  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+// ── SVG map ───────────────────────────────────────────────────────────────
+function buildSVG() {
+  const p  = palette;
+  const cx = 400, cy = 290;
+  const icon = soulIcon(A.soul_voice);
+
+  // Outer nodes: [x, y, r, strokeColor, iconChar, typeLabel, shortDesc]
+  const nodes = [
+    [cx,  76, 44, p.gold,    icon,  'THE ANIMA',    truncate(soulLabelRaw, 20) ],
+    [158, 158, 42, p.accent, '◎',   'ORIGIN',       truncate(shortLabel(A.origin_sense||'',3),20)],
+    [642, 158, 42, p.accent, '≋',   'THE VESSEL',   truncate(carryLabelRaw, 20)],
+    [138, 382, 40, p.dim,    '◈',   'THE PERSONA',  truncate(maskLabelRaw, 20) ],
+    [556, 282, 44, p.accent, '◉',   'THE LONGING',  truncate(shortLabel(A.secret_wants||'',3),20)],
+    [656, 400, 40, p.accent, '✿',   'WHAT BEGINS',  truncate(growLabelRaw, 20) ],
+    [106, 498, 40, '#8b4444','✕',   'THE WOUND',    truncate(woundLabelRaw, 20)],
+    [cx,  538, 34, p.dim,    '⊘',   'THRESHOLD',    truncate(threshLabelRaw,20)],
+  ];
+
+  const landUpper = landscapeName.toUpperCase();
+  const shadowUpper = shadowName.toUpperCase();
+
+  let s = `<svg viewBox="0 0 800 640" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="svgbg" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="${lightenHex(p.bg, 10)}"/>
+    <stop offset="100%" stop-color="${p.bg}"/>
+  </radialGradient>
+  <radialGradient id="vf" cx="40%" cy="55%" r="60%">
+    <stop offset="0%" stop-color="${lightenHex(p.primary,30)}"/>
+    <stop offset="55%" stop-color="${p.primary}" stop-opacity=".4"/>
+    <stop offset="100%" stop-color="${p.primary}" stop-opacity=".06"/>
+  </radialGradient>
+  <filter id="gv"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="sf"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="800" height="640" fill="url(#svgbg)" rx="3"/>`;
+
+  // Shadow ring — dashed, pulsing
+  s += `<circle cx="${cx}" cy="${cy}" r="112" fill="none" stroke="${p.dim}" stroke-width="1.5" opacity=".32" stroke-dasharray="7 5" class="sp-pulse"/>`;
+  // Shadow label near ring
+  s += `<text x="${cx + 120}" y="${cy - 6}" font-size="7" fill="${p.dim}" opacity=".6" font-family="Cinzel,serif" letter-spacing="1.2">${shadowUpper}</text>`;
+  s += `<text x="${cx + 120}" y="${cy + 7}" font-size="6.5" fill="${p.dim}" opacity=".35" font-style="italic" font-family="Cormorant Garamond,serif">intercepts · encircles</text>`;
+
+  // Centre — interior landscape
+  s += `<g transform="translate(${cx},${cy})" filter="url(#gv)">
+    <circle r="92" fill="url(#vf)" stroke="${p.primary}" stroke-width="1.8" opacity=".9"/>
+    <text text-anchor="middle" y="-18" font-size="8.5" fill="${lightenHex(p.primary,50)}" font-family="Cinzel,serif" letter-spacing="2">${landUpper}</text>
+    <text text-anchor="middle" y="-3" font-size="7" fill="${p.text}" opacity=".6" font-style="italic" font-family="Cormorant Garamond,serif">the true interior self</text>
+    <text text-anchor="middle" y="16" font-size="5.5" fill="${p.gold}" opacity=".3" font-style="italic" font-family="Cormorant Garamond,serif">${fiveWords.map(w=>w.toLowerCase()).join(' · ')}</text>
+  </g>`;
+
+  // Outer nodes
+  nodes.forEach(([x, y, r, color, iconChar, typeLabel, desc]) => {
+    const iy = -Math.round(r * 0.38);
+    const ty =  Math.round(r * 0.18);
+    const dy =  Math.round(r * 0.46);
+    s += `<g transform="translate(${x},${y})" filter="url(#sf)">
+      <circle r="${r}" fill="${hex2rgba(color, 0.07)}" stroke="${color}" stroke-width="1.2" opacity=".85"/>
+      <text text-anchor="middle" y="${iy}" font-size="15" fill="${color}">${iconChar}</text>
+      <text text-anchor="middle" y="${ty}" font-size="7" fill="${color}" font-family="Cinzel,serif" letter-spacing="1.2">${typeLabel}</text>
+      <text text-anchor="middle" y="${dy}" font-size="6.5" fill="${color}" opacity=".5" font-style="italic" font-family="Cormorant Garamond,serif">${desc}</text>
+    </g>`;
+  });
+
+  s += `</svg>`;
+  return s;
+}
+
+// ── Card builder ──────────────────────────────────────────────────────────
+function card({ label, title, desc, color, tags, fullWidth }) {
+  const sw = fullWidth ? 'grid-column:1/-1;' : '';
+  const hasDesc = desc && desc.trim().length > 0;
+  const tagsHtml = (tags && tags.length)
+    ? `<div class="tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : '';
+  return `<div class="card" style="${sw}--c:${color}">
+    <div class="cb"></div>
+    <span class="cl">${label}</span>
+    <div class="ct">${title}</div>
+    ${hasDesc ? `<p class="cd">${desc}</p>` : ''}
+    ${tagsHtml}
+  </div>`;
+}
+
+// ── Populate page ─────────────────────────────────────────────────────────
+document.getElementById('pageTitle').textContent = `${name.toUpperCase()} — PSYCHE MAP`;
+document.getElementById('mythText').textContent  = mythSentence;
+document.getElementById('landscapeSec').textContent = landscapeName.toUpperCase();
+
+document.getElementById('mapWrap').innerHTML = buildSVG();
+
+// Landscape
+document.getElementById('landscapeCard').innerHTML = card({
+  label: 'THE CENTRE',
+  title: `${landscapeName} — The True Interior Self`,
+  desc:  A.interior_landscape || '',
+  color: palette.primary,
+  tags:  tagsFromText(A.interior_landscape, 4)
 });
 
-// Fade in
-requestAnimationFrame(() => requestAnimationFrame(() => {
-  document.getElementById('stage').classList.add('in');
-}));
+// Autonomous forces
+const shadowColor = element === 'fire' ? '#9b4444' : element === 'earth' ? '#7a5a3a' : '#7a4494';
+document.getElementById('forcesGrid').innerHTML =
+  card({ label: 'THE SHADOW', title: shadowName, desc: A.shadow_description || '', color: shadowColor, tags: tagsFromText(A.shadow_description, 4), fullWidth: true }) +
+  card({ label: 'THE ANIMA / ANIMUS', title: 'Soul Voice', desc: A.soul_voice || '', color: palette.gold, tags: tagsFromText(A.soul_voice, 3) }) +
+  card({ label: 'THE VESSEL', title: 'What You Carry', desc: A.what_you_carry || A.puer_pattern || '', color: palette.accent, tags: tagsFromText(A.what_you_carry || A.puer_pattern, 3) });
 
-// Stars
+// Wound
+document.getElementById('woundCard').innerHTML = card({
+  label: 'THE FOUNDATIONAL WOUND',
+  title: 'The Installed Belief',
+  desc:  A.core_wound_belief || '',
+  color: '#8b4444',
+  tags:  tagsFromText(A.core_wound_belief, 4)
+});
+
+// Growing
+document.getElementById('growingCard').innerHTML = card({
+  label: 'WHAT IS BEGINNING',
+  title: 'The Emerging Quality',
+  desc:  A.whats_growing || A.symbolic_languages || '',
+  color: palette.accent,
+  tags:  tagsFromText(A.whats_growing || A.symbolic_languages, 4)
+});
+
+// Five words
+document.getElementById('fiveWords').innerHTML = fiveWords
+  .map(w => `<span class="fw">${w}</span>`).join('');
+
+// ── Generate Claude context ───────────────────────────────────────────────
+document.getElementById('contextBtn').addEventListener('click', () => {
+  const wrap = document.getElementById('ctxWrap');
+  const btn  = document.getElementById('contextBtn');
+  if (wrap.classList.contains('open')) {
+    wrap.classList.remove('open');
+    btn.textContent = 'Generate Claude Context';
+    return;
+  }
+
+  const answerXml = Object.entries(A)
+    .filter(([, v]) => v)
+    .map(([k, v]) => `    <${k}>${v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</${k}>`)
+    .join('\n');
+
+  const xml = `<psyche_map_session>
+  <companion_identity>
+    You are a Jungian depth psychology companion and shadow work guide. You are not a therapist and do not claim to be.
+
+    You work with a specific framework. Every person has an interior self — a true landscape underneath everything that has grown over it. Around that landscape, most people have developed an autonomous defence mechanism — built from a foundational wound, grown like scar tissue, with its own personality and voice. This is the shadow in its active form.
+
+    The work is not to destroy the shadow but to understand it — to see it clearly enough that it loses its automatic authority.
+
+    You also work with the Jungian forces: the soul voice (Anima/Animus) — the medium through which the deepest self speaks; the part that lives in potential and stalls at the moment things become real enough to be judged; the discipline and structure that serves rather than crushes; and the Wound — the foundational injury that installed a false belief before the psyche could defend itself.
+
+    Underneath all of this is the myth — the overarching pattern the person's life keeps following. It is already operating. Your work is partly to help name its shape.
+
+    You speak with precision and warmth. You ask one question at a time. You do not over-explain. You do not rush to resolution. You hold what is difficult without minimising it. You notice what is not being said as much as what is. You trust the person's own imagery and language over any framework — the map serves them, not the other way around.
+
+    You never use the specific imagery from anyone else's map. Each person's interior world is entirely their own.
+  </companion_identity>
+
+  <person>
+    <name>${name}</name>
+    <interior_landscape>
+      <name>${landscapeName}</name>
+      <description>${(A.interior_landscape||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</description>
+    </interior_landscape>
+    <shadow>
+      <name>${shadowName}</name>
+      <description>${(A.shadow_description||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</description>
+    </shadow>
+    <five_words>${fiveWords.join(', ')}</five_words>
+    <myth>${mythSentence.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</myth>
+    <all_responses>
+${answerXml}
+    </all_responses>
+  </person>
+
+  <session_intention>${(A.session_intention||A.central_question||'Not specified').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</session_intention>
+
+  <instructions>
+    Begin by acknowledging ${name} by name. Read what they have shared carefully before responding. Ask one question — the most important one that wants to be asked right now. Do not rush. Do not summarise back at length. Hold the space.
+  </instructions>
+</psyche_map_session>`;
+
+  document.getElementById('ctxBox').textContent = xml;
+  wrap.classList.add('open');
+
+  navigator.clipboard.writeText(xml).then(() => {
+    btn.textContent = 'Copied to clipboard —';
+    setTimeout(() => btn.textContent = 'Generate Claude Context', 2800);
+  }).catch(() => {
+    btn.textContent = 'Generated — scroll to copy';
+  });
+});
+
+// Restart
+document.getElementById('restartLink').addEventListener('click', e => {
+  e.preventDefault();
+  if (confirm('Clear your map and begin again? This cannot be undone.')) {
+    localStorage.removeItem('psyche_intake');
+    localStorage.removeItem('psyche_intake_progress');
+    window.location.href = 'intake.html';
+  }
+});
+
+// ── Stars + fade in ───────────────────────────────────────────────────────
 (function() {
   const s = document.getElementById('stars');
   for (let i = 0; i < 130; i++) {
@@ -171,6 +565,9 @@ requestAnimationFrame(() => requestAnimationFrame(() => {
     s.appendChild(e);
   }
 })();
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  document.getElementById('page').classList.add('in');
+}));
 </script>
 </body>
 </html>

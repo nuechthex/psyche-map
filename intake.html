@@ -119,7 +119,6 @@ body {
 
 /* ─── QUESTION ─── */
 #question-screen .panel {
-  /* question panel gets extra top space so it reads centred against the stage */
   padding-top: 1rem;
 }
 .q-mark {
@@ -128,7 +127,15 @@ body {
   letter-spacing: 0.55em;
   color: var(--gold);
   opacity: 0.28;
-  margin-bottom: 3rem;
+  margin-bottom: 2.4rem;
+}
+.q-framing {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--dim);
+  line-height: 1.9;
+  margin-bottom: 1.8rem;
+  opacity: 0;
 }
 .q-text {
   font-size: clamp(1.05rem, 2.6vw, 1.32rem);
@@ -256,6 +263,7 @@ body {
   <div class="screen" id="question-screen">
     <div class="panel">
       <div class="q-mark">✦</div>
+      <div class="q-framing" id="qFraming"></div>
       <div class="q-text" id="qText"></div>
       <div class="q-note" id="qNote"></div>
       <textarea class="q-answer" id="answerField" rows="4" placeholder="Write here..."></textarea>
@@ -280,76 +288,65 @@ body {
 <script>
 const QUESTIONS = [
   {
+    framing: "This is a space for your interior world. Nothing here needs to perform or explain itself. Begin simply.",
     text: "What is your name, and what do you want to be called here?",
-    note: null,
     placeholder: "Your name...",
     key: "name"
   },
   {
-    text: "Before anything shaped you — before school, before other people's opinions landed — what did you believe you were for?",
-    note: "Not what you wanted to be. What did you feel, in your body, that you were.",
-    placeholder: null,
+    framing: "Go back before school, before other people's opinions landed on you. Before you knew what was practical or possible. There was something you felt in your body — not a dream, a sense of nature. Point yourself there.",
+    text: "Before anything shaped you — what did you believe you were for? Not what you wanted to be. What did you feel, in your body, that you were.",
     key: "origin_sense"
   },
   {
+    framing: "We're going somewhere that takes a little courage. Not to what happened — but to what you came to believe about yourself because of what happened. This belief formed before you had words for it. It may feel like a fact rather than a conclusion.",
     text: "What is the hardest thing that was ever installed in you about yourself?",
-    note: "Not something that happened — a belief that formed because of what happened.",
-    placeholder: null,
     key: "core_wound_belief"
   },
   {
-    text: "When your defences activate — when you feel threatened or exposed — what does that feel like from the inside?",
-    note: "Does it have a shape, a colour, a personality?",
-    placeholder: null,
+    framing: "When you feel threatened or exposed, something activates. Not your conscious choice — it arrives before you decide. Try to observe it from the outside. What does it look like? What does it do?",
+    text: "When your defences activate — what does that feel like from the inside? Does it have a shape, a colour, a personality?",
     key: "shadow_description"
   },
   {
-    text: "What is your interior world like when you are most at peace?",
-    note: "Give it an image — a landscape, a place, a feeling. Don't think. Just describe what arrives.",
-    placeholder: null,
+    framing: "Don't think. Let an image arrive. You're looking for the place inside you that exists when everything external falls away — your natural interior weather, your home ground.",
+    text: "What is your interior world like when you are most at peace? Give it an image — a landscape, a place, a feeling.",
     key: "interior_landscape"
   },
   {
-    text: "Where does your soul speak to you?",
-    note: "Not in words — through what medium does the deepest part of you express itself, or catch in your chest?",
-    placeholder: null,
+    framing: "Your soul doesn't always speak in words. It catches in the chest, moves through a particular medium. Think of the moments you felt most purely yourself — what was the vehicle?",
+    text: "Where does your soul speak to you? Through what medium does the deepest part of you express itself?",
     key: "soul_voice"
   },
   {
-    text: "Where do you live in potential that never quite becomes real?",
-    note: "What stalls at the moment it becomes something that could be judged?",
-    placeholder: null,
-    key: "puer_pattern"
+    framing: "Some people are built to hold or transmit something for others — not because they chose it, but because it keeps finding them.",
+    text: "What do people come to you for, underneath what they say they want?",
+    key: "what_you_carry"
   },
   {
-    text: "Quick — before you can edit: if your soul had five words, what are they?",
-    note: null,
-    placeholder: "Five words, unhesitatingly...",
-    key: "five_words"
+    framing: "We all developed a face for the world — something that kept us safe or acceptable. It may have served you well.",
+    text: "What is the version of you that the world sees most? And how does it differ from what's underneath?",
+    key: "the_mask"
   },
   {
-    text: "What did you believe you were for, before the wound had any say? And what survived the worst collapse of your life?",
-    note: null,
-    placeholder: null,
-    key: "surviving_self"
+    framing: "Underneath ambition and practicality, there are wants you may have learned to keep quiet — too exposed, too large, too revealing.",
+    text: "What do you want that you rarely say out loud?",
+    key: "secret_wants"
   },
   {
-    text: "In stories — any stories, myths, films, books, games — what figures or moments make you feel recognised rather than just moved?",
-    note: null,
-    placeholder: null,
-    key: "mythic_recognition"
+    framing: "Most people have a moment — a period — when what they had built stopped working. A collapse, a loss, a threshold crossed. If you've had this, what did you find on the other side that wasn't there before?",
+    text: "What did you find on the other side of your worst collapse that wasn't there before?",
+    key: "collapse_threshold"
   },
   {
-    text: "What symbolic languages do you already live inside?",
-    note: "Astrology, tarot, mythology, religion, cultural story. What systems have always felt like they were speaking directly to you?",
-    placeholder: null,
-    key: "symbolic_languages"
+    framing: "Something new or newly audible is usually present, even if small. A quality, a voice, a capacity that wasn't there before or is only recently available.",
+    text: "What is beginning in you?",
+    key: "whats_growing"
   },
   {
-    text: "Looking at everything you've just said — what is the central unanswered question of your life right now?",
-    note: null,
-    placeholder: null,
-    key: "central_question"
+    framing: "Last. This map will be yours — a cartography of what's already true.",
+    text: "What do you want to be able to see, name, or understand by the time it's complete?",
+    key: "session_intention"
   }
 ];
 
@@ -358,13 +355,15 @@ let answers = {};
 let userName = null;
 let transitioning = false;
 
-const welcomeEl   = document.getElementById('welcome');
-const questionEl  = document.getElementById('question-screen');
-const closingEl   = document.getElementById('closing');
-const nameTagEl   = document.getElementById('name-tag');
-const qTextEl     = document.getElementById('qText');
-const qNoteEl     = document.getElementById('qNote');
-const answerEl    = document.getElementById('answerField');
+const welcomeEl     = document.getElementById('welcome');
+const questionEl    = document.getElementById('question-screen');
+const closingEl     = document.getElementById('closing');
+const nameTagEl     = document.getElementById('name-tag');
+const qFramingEl    = document.getElementById('qFraming');
+const qTextEl       = document.getElementById('qText');
+const qNoteEl       = document.getElementById('qNote');
+const answerEl      = document.getElementById('answerField');
+const qFooterEl     = document.querySelector('.q-footer');
 const continueBtnEl = document.getElementById('continueBtn');
 const closingTextEl = document.getElementById('closingText');
 
@@ -381,10 +380,11 @@ if (saved) {
     answers  = p.answers  || {};
     userName = p.name     || null;
     currentQ = Math.min(p.currentQ || 0, QUESTIONS.length - 1);
-    // Skip welcome, jump straight in
     transitionTo(welcomeEl, questionEl, () => {
       if (userName) revealNameTag();
+      resetContentOpacity();
       renderQuestion(currentQ);
+      revealContent();
       focusField();
     });
   } catch(e) { /* corrupted — start fresh */ }
@@ -393,7 +393,9 @@ if (saved) {
 // Begin button
 document.getElementById('beginBtn').addEventListener('click', () => {
   transitionTo(welcomeEl, questionEl, () => {
+    resetContentOpacity();
     renderQuestion(0);
+    revealContent();
     focusField();
   });
 });
@@ -417,15 +419,9 @@ continueBtnEl.addEventListener('click', advance);
 function renderQuestion(index) {
   const q = QUESTIONS[index];
 
-  qTextEl.textContent = q.text;
-
-  if (q.note) {
-    qNoteEl.textContent = q.note;
-    qNoteEl.style.display = '';
-  } else {
-    qNoteEl.textContent = '';
-    qNoteEl.style.display = 'none';
-  }
+  qFramingEl.textContent = q.framing || '';
+  qTextEl.textContent    = q.text;
+  qNoteEl.style.display  = 'none';
 
   answerEl.placeholder = q.placeholder || 'Write here...';
   answerEl.value       = answers[q.key] || '';
@@ -433,6 +429,29 @@ function renderQuestion(index) {
   growTextarea();
 
   continueBtnEl.classList.toggle('ready', answerEl.value.trim().length > 0);
+}
+
+// ── Staggered content reveal ───────────────────────────────────────────────
+function resetContentOpacity() {
+  [qFramingEl, qTextEl, answerEl, qFooterEl].forEach(el => {
+    el.style.transition = 'none';
+    el.style.opacity    = '0';
+  });
+}
+
+function revealContent() {
+  const items = [
+    { el: qFramingEl, delay: 60 },
+    { el: qTextEl,    delay: 320 },
+    { el: answerEl,   delay: 500 },
+    { el: qFooterEl,  delay: 520 },
+  ];
+  items.forEach(({ el, delay }) => {
+    setTimeout(() => {
+      el.style.transition = 'opacity 0.7s ease';
+      el.style.opacity    = '1';
+    }, delay);
+  });
 }
 
 // ── Advance to next question or finish ──────────────────────────────────────
@@ -450,13 +469,14 @@ function advance() {
 
   if (currentQ < QUESTIONS.length - 1) {
     transitioning = true;
-    // Fade the panel content, swap question, fade back
     questionEl.classList.add('fading');
+    resetContentOpacity();
     setTimeout(() => {
       currentQ++;
       renderQuestion(currentQ);
       questionEl.classList.remove('fading');
       transitioning = false;
+      revealContent();
       focusField();
     }, 620);
   } else {
