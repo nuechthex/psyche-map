@@ -132,6 +132,10 @@ body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',ser
 .ctx-wrap.open{display:block;}
 .ctx-box{background:rgba(0,0,0,.35);border:1px solid rgba(138,128,112,.18);padding:1.2rem;font-size:.68rem;font-family:'Courier New',monospace;color:var(--dim);line-height:1.65;white-space:pre-wrap;max-height:340px;overflow-y:auto;}
 .copy-note{font-size:.7rem;font-style:italic;color:var(--dim);opacity:.5;margin-top:.6rem;text-align:center;}
+/* ── card illustrations ── */
+.card-illo{width:100%;border-bottom:1px solid rgba(255,255,255,.05);overflow:hidden;border-radius:1px 1px 0 0;}
+.card-illo svg{width:100%;display:block;}
+.card-text{padding:1.2rem 1.4rem 1.2rem 1.6rem;}
 </style>
 </head>
 <body>
@@ -448,14 +452,411 @@ function buildSVG(){
   return s;
 }
 
-// ══ 8. Card builder ════════════════════════════════════════════════════════
-function card({label,title,desc,color,tags,fullWidth,editKey}){
+// ══ 8. Illustration engine ═══════════════════════════════════════════════
+function symFromText(text,type){
+  const l=(text||'').toLowerCase();
+  const MAPS={
+    landscape:[['ocean','ocean|sea|waves?|shore|tide|coastal|beach|current|flood'],['forest','forest|tree|wood|grove|bark|canopy|branch|root'],['mountain','mountain|valley|cliff|peak|summit|range|rocky|highland'],['cave','cave|cavern|beneath|hollow|underground|tunnel'],['desert','desert|sand|dune|arid|barren|dry|dust'],['void','void|space|cosmos|infinite|universe|abyss'],['field','field|meadow|grass|plain|open|expanse|rolling']],
+    shadow:[['wall','wall|stone|barrier|block|solid|mass|immovable'],['fog','fog|mist|blur|cloud|obscure|murky|dense|vague'],['cage','cage|trap|bars?|locked|bound|prison|confin'],['storm','storm|thunder|lightning|rage|tempest|fury|violent'],['mirror','mirror|reflect|glass|double|face']],
+    anima:[['music','music|song|melody|sing|piano|guitar|instrument|rhythm|sound|chord'],['writing','writ|word|story|poem|journal|prose|letter|page|ink'],['visual','paint|draw|art|colou?r|image|visual|canvas'],['movement','danc|move|body|movement|yoga|run|gesture|breath|embod'],['nature','nature|garden|earth|plant|tree|outdoor|natural|wild'],['silence','silence|still|quiet|peace|nothing|calm|empty']],
+    wound:[['fracture','fractur|crack|split|torn|shatter|sever|broken|broke'],['weight','weight|heavy|burden|carr|pressed|crush|pressure|sink|load'],['absence','absent|empty|hollow|alone|nobody|nothing|missing|invisible|isolated'],['erasure','eras|invisible|forgotten|overlook|disappear']],
+    growing:[['flame','light|glow|shine|warm|bright|fire|kindl|ignit|illuminat|radiant'],['leaf','grow|growth|plant|leaf|sprout|bloom|unfurl|bud|green|seed'],['dawn','dawn|morning|rise|begin|start|new|emerg|horizon|wak'],['pool','still|water|quiet|pool|calm|surface|reflect|peace'],['door','open|opening|door|threshold|space|free|through|enter']]
+  };
+  for(const[sym,pat]of(MAPS[type]||[])){if(new RegExp(pat).test(l))return sym;}
+  const efb={landscape:{water:'ocean',fire:'desert',earth:'field',air:'field',void:'void'},shadow:{water:'fog',fire:'storm',earth:'wall',air:'fog',void:'fog'},anima:{water:'silence',fire:'music',earth:'nature',air:'movement',void:'silence'},wound:{water:'absence',fire:'fracture',earth:'weight',air:'absence',void:'absence'},growing:{water:'pool',fire:'flame',earth:'leaf',air:'dawn',void:'door'}};
+  return(efb[type]||{})[element]||(MAPS[type]||[[]])[0]?.[0]||'default';
+}
+
+function lc(h,a){return lighten(h,a);}
+function h2r(h,a){return hex2rgba(h,a);}
+
+function illoLandscape(sym){
+  const W=600,H=160,bg=P.bg,pr=P.primary,ac=P.accent,dm=P.dim,tx=P.text,gd=P.gold;
+  const defs=`<defs><filter id="la-a" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5"/></filter><filter id="la-g"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  const lbl=(t)=>`<text x="300" y="148" font-size="8" fill="${dm}" font-family="Cinzel,serif" letter-spacing="3" text-anchor="middle" opacity=".4">${t}</text>`;
+  const anim=(d1,d2,dur,begin='')=>`<animate attributeName="d" values="${d1};${d2};${d1}" dur="${dur}" begin="${begin}" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>`;
+  let b='';
+  if(sym==='ocean'){
+    const wv1=`M0,90 Q100,78 200,88 Q300,98 400,82 Q500,66 600,80`,wv2=`M0,88 Q100,76 200,86 Q300,96 400,80 Q500,64 600,78`;
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/><ellipse cx="300" cy="40" rx="280" ry="55" fill="${lc(bg,6)}" opacity=".4" filter="url(#la-a)"/>
+    <path d="M0,80 Q150,65 300,78 Q450,91 600,72 L600,160 L0,160Z" fill="${pr}" opacity=".15"/>
+    <path d="M0,94 Q150,82 300,92 Q450,104 600,88 L600,160 L0,160Z" fill="${pr}" opacity=".22"/>
+    <path d="M0,108 Q150,96 300,106 Q450,118 600,102 L600,160 L0,160Z" fill="${lc(pr,12)}" opacity=".32"/>
+    <path d="${wv1}" fill="none" stroke="${lc(pr,18)}" stroke-width="4" opacity=".14" stroke-linecap="round">${anim(wv1,wv2,'4s')}</path>
+    <path d="${wv1}" fill="none" stroke="${lc(pr,35)}" stroke-width="1.1" opacity=".38" stroke-linecap="round">${anim(wv1,wv2,'4s')}</path>
+    <path d="M0,108 Q100,98 200,105 Q350,116 500,100 Q560,94 600,102" fill="none" stroke="${lc(pr,45)}" stroke-width="0.7" opacity=".22" stroke-linecap="round"><animate attributeName="opacity" values=".22;.42;.14;.32;.22" dur="3s" repeatCount="indefinite"/></path>
+    <circle cx="80" cy="22" r="0.9" fill="white" opacity=".3"><animate attributeName="opacity" values=".3;.55;.18;.4;.3" dur="5s" repeatCount="indefinite"/></circle>
+    <circle cx="480" cy="18" r="1.1" fill="white" opacity=".28"><animate attributeName="opacity" values=".28;.52;.15;.38;.28" dur="4s" repeatCount="indefinite"/></circle>
+    ${lbl('THE INTERIOR OCEAN')}`;
+  } else if(sym==='forest'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="80" cy="25" rx="70" ry="38" fill="${pr}" opacity=".15" filter="url(#la-a)"/>
+    <ellipse cx="220" cy="18" rx="85" ry="34" fill="${lc(pr,5)}" opacity=".18" filter="url(#la-a)"/>
+    <ellipse cx="400" cy="15" rx="90" ry="36" fill="${pr}" opacity=".14" filter="url(#la-a)"/>
+    <ellipse cx="555" cy="22" rx="65" ry="32" fill="${lc(pr,4)}" opacity=".16" filter="url(#la-a)"/>
+    <rect x="0" y="115" width="${W}" height="45" fill="${pr}" opacity=".1"/>
+    ${[55,135,230,315,415,490,560].map((x,i)=>{const h=70+Math.round(Math.sin(i*1.7)*18),bot=128+Math.round(Math.sin(i*2.1)*8);return`<line x1="${x}" y1="${bot}" x2="${x+4}" y2="${bot-h}" stroke="${pr}" stroke-width="5" opacity=".1" stroke-linecap="round"/><line x1="${x}" y1="${bot}" x2="${x+4}" y2="${bot-h}" stroke="${lc(pr,14)}" stroke-width="1.6" opacity=".38" stroke-linecap="round"/>`;}).join('')}
+    <path d="M0,28 Q100,18 200,26 Q300,34 400,20 Q500,6 600,16" fill="none" stroke="${lc(pr,20)}" stroke-width="2.5" opacity=".05" stroke-linecap="round"><animate attributeName="d" values="M0,28 Q100,18 200,26 Q300,34 400,20 Q500,6 600,16;M0,26 Q100,16 200,24 Q300,32 400,18 Q500,4 600,14;M0,28 Q100,18 200,26 Q300,34 400,20 Q500,6 600,16" dur="5s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>
+    <path d="M0,28 Q100,18 200,26 Q300,34 400,20 Q500,6 600,16" fill="none" stroke="${lc(pr,30)}" stroke-width="0.7" opacity=".16" stroke-linecap="round"/>
+    <path d="M295,0 L275,118" stroke="${gd}" stroke-width="10" opacity=".025" stroke-linecap="round"/>
+    <path d="M295,0 L275,118" stroke="${gd}" stroke-width="1.2" opacity=".05" stroke-linecap="round"/>
+    ${lbl('THE INTERIOR FOREST')}`;
+  } else if(sym==='mountain'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="38" rx="280" ry="55" fill="${lc(bg,5)}" opacity=".45" filter="url(#la-a)"/>
+    <path d="M0,82 Q80,48 160,82Z" fill="${lc(bg,7)}" opacity=".38" filter="url(#la-a)"/>
+    <path d="M80,82 Q180,28 280,82Z" fill="${lc(bg,7)}" opacity=".36" filter="url(#la-a)"/>
+    <path d="M220,82 Q320,26 420,82Z" fill="${lc(bg,7)}" opacity=".36" filter="url(#la-a)"/>
+    <path d="M360,82 Q460,32 560,82Z" fill="${lc(bg,7)}" opacity=".34" filter="url(#la-a)"/>
+    <path d="M0,88 Q100,38 200,88Z" fill="${lc(bg,12)}" opacity=".75"/>
+    <path d="M120,88 Q240,20 360,88Z" fill="${lc(bg,10)}" opacity=".88"/>
+    <path d="M300,88 Q420,28 540,88Z" fill="${lc(bg,12)}" opacity=".75"/>
+    <path d="M240,88 Q336,52 345,68 Q336,80 240,88Z" fill="${tx}" opacity=".48" filter="url(#la-a)"/>
+    <path d="M240,68 Q336,50 344,60 Q336,66 240,68Z" fill="${tx}" opacity=".32" filter="url(#la-a)"/>
+    <path d="M0,110 Q100,92 200,105 Q300,118 400,102 Q500,86 600,98 L600,160 L0,160Z" fill="${lc(bg,14)}" opacity=".9"/>
+    <path d="M0,120 Q150,108 300,118 Q450,128 600,115 L600,160 L0,160Z" fill="${lc(bg,18)}" opacity=".95"/>
+    <path d="M50,65 Q150,52 250,60 Q350,68 450,55 Q530,46 580,54" fill="none" stroke="${dm}" stroke-width="2" opacity=".06" stroke-linecap="round"><animate attributeName="opacity" values=".06;.11;.04;.08;.06" dur="6s" repeatCount="indefinite"/></path>
+    ${lbl('THE INTERIOR HEIGHTS')}`;
+  } else if(sym==='cave'){
+    b=`<rect width="${W}" height="${H}" fill="${lc(bg,2)}"/>
+    <path d="M0,0 L0,160 L60,160 L60,95 Q42,72 35,38 Q28,16 20,0Z" fill="${lc(bg,3)}" opacity=".92"/>
+    <path d="M600,0 L600,160 L540,160 L540,95 Q558,72 565,38 Q572,16 580,0Z" fill="${lc(bg,3)}" opacity=".92"/>
+    <path d="M0,0 Q0,0 25,0 Q25,55 70,78 Q110,95 155,102 Q220,110 300,112" fill="none" stroke="${lc(bg,8)}" stroke-width="12" opacity=".6" stroke-linecap="round"/>
+    <path d="M600,0 Q600,0 575,0 Q575,55 530,78 Q490,95 445,102 Q380,110 300,112" fill="none" stroke="${lc(bg,8)}" stroke-width="12" opacity=".6" stroke-linecap="round"/>
+    <path d="M15,35 Q35,42 48,60" stroke="${dm}" stroke-width="2.5" fill="none" opacity=".06" stroke-linecap="round"/>
+    <path d="M15,35 Q35,42 48,60" stroke="${dm}" stroke-width="0.7" fill="none" opacity=".14" stroke-linecap="round"/>
+    <path d="M8,75 Q28,82 42,98" stroke="${dm}" stroke-width="2" fill="none" opacity=".05" stroke-linecap="round"/>
+    <path d="M8,75 Q28,82 42,98" stroke="${dm}" stroke-width="0.6" fill="none" opacity=".12" stroke-linecap="round"/>
+    <ellipse cx="300" cy="80" rx="65" ry="38" fill="${pr}" opacity=".05" filter="url(#la-g)"><animate attributeName="opacity" values=".05;.11;.03;.08;.05" dur="5s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="80" rx="28" ry="16" fill="${lc(pr,28)}" opacity=".08"><animate attributeName="opacity" values=".08;.16;.04;.11;.08" dur="5s" begin="-1s" repeatCount="indefinite"/></ellipse>
+    <line x1="180" y1="0" x2="184" y2="16" stroke="${dm}" stroke-width="0.5" opacity=".22" stroke-linecap="round"/>
+    <line x1="360" y1="0" x2="362" y2="20" stroke="${dm}" stroke-width="0.4" opacity=".18" stroke-linecap="round"/>
+    <line x1="440" y1="0" x2="443" y2="14" stroke="${dm}" stroke-width="0.5" opacity=".2" stroke-linecap="round"/>
+    ${lbl('THE INTERIOR DEPTH')}`;
+  } else if(sym==='desert'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="32" rx="280" ry="48" fill="${lc(bg,7)}" opacity=".38" filter="url(#la-a)"/>
+    <circle cx="500" cy="28" r="14" fill="${gd}" opacity=".04" filter="url(#la-g)"/>
+    <circle cx="500" cy="28" r="5" fill="${gd}" opacity=".07"/>
+    <path d="M0,88 Q150,58 300,82 Q450,106 600,75 L600,160 L0,160Z" fill="${lc(bg,9)}" opacity=".72"/>
+    <path d="M0,112 Q80,92 200,108 Q350,126 500,103 Q560,94 600,108 L600,160 L0,160Z" fill="${lc(bg,14)}" opacity=".85"/>
+    <path d="M0,132 Q100,118 240,130 Q380,143 500,126 Q560,118 600,128 L600,160 L0,160Z" fill="${lc(bg,18)}" opacity=".95"/>
+    <path d="M0,74 Q150,67 300,72 Q450,77 600,70" fill="none" stroke="${gd}" stroke-width="1.5" opacity=".04" stroke-linecap="round"><animate attributeName="opacity" values=".04;.09;.02;.06;.04" dur="3s" repeatCount="indefinite"/></path>
+    <line x1="100" y1="126" x2="102" y2="108" stroke="${dm}" stroke-width="2" opacity=".09" stroke-linecap="round"/>
+    <line x1="100" y1="126" x2="102" y2="108" stroke="${dm}" stroke-width="0.6" opacity=".2" stroke-linecap="round"/>
+    <path d="M102,112 Q108,107 113,109" stroke="${dm}" stroke-width="0.5" fill="none" opacity=".16" stroke-linecap="round"/>
+    ${lbl('THE INTERIOR EXPANSE')}`;
+  } else if(sym==='void'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="200" cy="68" rx="145" ry="55" fill="${pr}" opacity=".04" filter="url(#la-g)"><animate attributeName="opacity" values=".04;.08;.02;.06;.04" dur="7s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="420" cy="78" rx="120" ry="50" fill="${ac}" opacity=".03" filter="url(#la-g)"><animate attributeName="opacity" values=".03;.07;.02;.05;.03" dur="9s" begin="-2s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="48" rx="85" ry="38" fill="${gd}" opacity=".025" filter="url(#la-g)"><animate attributeName="opacity" values=".025;.055;.015;.04;.025" dur="8s" begin="-1s" repeatCount="indefinite"/></ellipse>
+    ${Array.from({length:22},(_,i)=>{const x=22+i*26,y=10+(i*47%75),r=+(0.4+(i*13%10)/22).toFixed(1);const d=+(2+(i*7%4)).toFixed(1),dl=-(i*1.3%4).toFixed(1);const op=+(0.18+(i*11%28)/100).toFixed(2),hi=+(op+0.24).toFixed(2);return`<circle cx="${x}" cy="${y}" r="${r}" fill="white" opacity="${op}"><animate attributeName="opacity" values="${op};${hi};${+(op*.5).toFixed(2)};${hi};${op}" dur="${d}s" begin="${dl}s" repeatCount="indefinite"/></circle>`;}).join('')}
+    ${lbl('THE INTERIOR COSMOS')}`;
+  } else {
+    // field
+    const g1=`M80,138 Q82,124 84,118`,g2=`M80,138 Q84,123 87,117`;
+    const g3=`M200,140 Q202,126 204,120`,g4=`M200,140 Q205,125 208,119`;
+    const g5=`M380,136 Q382,122 384,116`,g6=`M380,136 Q386,121 389,115`;
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="28" rx="280" ry="42" fill="${lc(bg,7)}" opacity=".45" filter="url(#la-a)"/>
+    <ellipse cx="300" cy="18" rx="240" ry="28" fill="${gd}" opacity=".025" filter="url(#la-a)"/>
+    <path d="M0,86 Q100,74 200,83 Q300,92 400,78 Q500,64 600,80 L600,160 L0,160Z" fill="${pr}" opacity=".14"/>
+    <path d="M0,98 Q100,87 200,96 Q300,106 400,92 Q500,78 600,94 L600,160 L0,160Z" fill="${pr}" opacity=".2"/>
+    <path d="M0,112 Q120,102 240,110 Q360,120 480,106 Q540,100 600,108 L600,160 L0,160Z" fill="${lc(pr,8)}" opacity=".3"/>
+    <path d="${g1}" stroke="${lc(pr,14)}" stroke-width="3.5" fill="none" opacity=".12" stroke-linecap="round">${anim(g1,g2,'3s')}</path>
+    <path d="${g1}" stroke="${lc(pr,26)}" stroke-width="1.1" fill="none" opacity=".35" stroke-linecap="round">${anim(g1,g2,'3s')}</path>
+    <path d="${g3}" stroke="${lc(pr,14)}" stroke-width="3.5" fill="none" opacity=".1" stroke-linecap="round">${anim(g3,g4,'3.5s','-.4s')}</path>
+    <path d="${g3}" stroke="${lc(pr,26)}" stroke-width="1.1" fill="none" opacity=".3" stroke-linecap="round">${anim(g3,g4,'3.5s','-.4s')}</path>
+    <path d="${g5}" stroke="${lc(pr,14)}" stroke-width="3.5" fill="none" opacity=".12" stroke-linecap="round">${anim(g5,g6,'3.2s','-1s')}</path>
+    <path d="${g5}" stroke="${lc(pr,26)}" stroke-width="1.1" fill="none" opacity=".32" stroke-linecap="round">${anim(g5,g6,'3.2s','-1s')}</path>
+    <path d="M0,80 Q100,70 200,78 Q350,90 500,74 Q560,68 600,76" fill="none" stroke="${lc(pr,22)}" stroke-width="2" opacity=".05" stroke-linecap="round"><animate attributeName="opacity" values=".05;.1;.03;.07;.05" dur="6s" repeatCount="indefinite"/></path>
+    <path d="M0,80 Q100,70 200,78 Q350,90 500,74 Q560,68 600,76" fill="none" stroke="${lc(pr,32)}" stroke-width="0.6" opacity=".16" stroke-linecap="round"/>
+    ${lbl('THE INTERIOR FIELD')}`;
+  }
+  return`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${defs}${b}</svg>`;
+}
+
+function illoShadow(sym){
+  const W=600,H=160,bg=P.bg,pr=P.primary,dm=P.dim,sc=shadowColor;
+  const defs=`<defs><filter id="sh-a" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="1.5"/></filter><filter id="sh-wc" x="-30%" y="-30%" width="160%" height="160%"><feTurbulence type="turbulence" baseFrequency="0.025 0.03" numOctaves="4" seed="17" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation="2"/></filter><filter id="sh-g"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  const lbl=`<text x="300" y="148" font-size="8" fill="${dm}" font-family="Cinzel,serif" letter-spacing="3" text-anchor="middle" opacity=".4">`;
+  let b='';
+  if(sym==='wall'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="80" rx="290" ry="72" fill="${sc}" opacity=".18" filter="url(#sh-wc)"/>
+    <ellipse cx="150" cy="40" rx="80" ry="30" fill="${sc}" opacity=".2" filter="url(#sh-wc)"/>
+    <ellipse cx="450" cy="45" rx="75" ry="28" fill="${sc}" opacity=".18" filter="url(#sh-wc)"/>
+    <ellipse cx="80" cy="90" rx="50" ry="55" fill="${sc}" opacity=".2" filter="url(#sh-wc)"/>
+    <ellipse cx="520" cy="85" rx="48" ry="52" fill="${sc}" opacity=".18" filter="url(#sh-wc)"/>
+    <ellipse cx="200" cy="140" rx="65" ry="22" fill="${sc}" opacity=".18" filter="url(#sh-wc)"/>
+    <ellipse cx="400" cy="145" rx="60" ry="20" fill="${sc}" opacity=".16" filter="url(#sh-wc)"/>
+    <ellipse cx="300" cy="80" rx="180" ry="60" fill="${bg}" opacity=".92"/>
+    <ellipse cx="300" cy="80" rx="175" ry="55" fill="${lc(bg,3)}" opacity=".9"/>
+    <ellipse cx="300" cy="80" rx="80" ry="30" fill="${sc}" opacity=".06" filter="url(#sh-g)"><animate attributeName="opacity" values=".06;.12;.04;.08;.06" dur="5s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="80" rx="290" ry="72" fill="none" stroke="${sc}" stroke-width="1.5" opacity=".4"><animate attributeName="opacity" values=".4;.65;.28;.5;.4" dur="4s" repeatCount="indefinite"/></ellipse>
+    ${lbl}SIEGE · MASS · ENCLOSURE</text>`;
+  } else if(sym==='fog'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    ${[{cx:120,cy:80,rx:150,ry:55,op:.18,sp:8},{cx:300,cy:70,rx:200,ry:65,op:.14,sp:10},{cx:480,cy:85,rx:160,ry:55,op:.16,sp:7},{cx:200,cy:100,rx:130,ry:45,op:.12,sp:12},{cx:400,cy:90,rx:140,ry:48,op:.12,sp:9}].map((e,i)=>`<ellipse cx="${e.cx}" cy="${e.cy}" rx="${e.rx}" ry="${e.ry}" fill="${dm}" opacity="${e.op}" filter="url(#sh-a)"><animate attributeName="opacity" values="${e.op};${+(e.op*1.6).toFixed(2)};${+(e.op*.6).toFixed(2)};${e.op}" dur="${e.sp}s" begin="-${i*1.5}s" repeatCount="indefinite"/></ellipse>`).join('')}
+    <path d="M0,80 Q100,65 200,75 Q300,85 400,70 Q500,55 600,68" fill="none" stroke="${dm}" stroke-width="2" opacity=".08" stroke-linecap="round"><animate attributeName="d" values="M0,80 Q100,65 200,75 Q300,85 400,70 Q500,55 600,68;M0,78 Q100,63 200,73 Q300,83 400,68 Q500,53 600,66;M0,80 Q100,65 200,75 Q300,85 400,70 Q500,55 600,68" dur="8s" repeatCount="indefinite"/></path>
+    <path d="M0,80 Q100,65 200,75 Q300,85 400,70 Q500,55 600,68" fill="none" stroke="${dm}" stroke-width="0.6" opacity=".22" stroke-linecap="round"/>
+    ${lbl}DENSE · OBSCURING · FORMLESS</text>`;
+  } else if(sym==='cage'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <rect x="60" y="10" width="480" height="135" fill="${sc}" opacity=".06"/>
+    ${Array.from({length:13},(_,i)=>{const x=60+i*40;return`<line x1="${x}" y1="10" x2="${x-4}" y2="145" stroke="${sc}" stroke-width="4" opacity=".12" stroke-linecap="round"/><line x1="${x}" y1="10" x2="${x-4}" y2="145" stroke="${lc(sc,15)}" stroke-width="1.2" opacity=".35" stroke-linecap="round"/>`;}).join('')}
+    ${[30,70,110].map(y=>`<path d="M60,${y} Q200,${y-4} 300,${y+2} Q400,${y-2} 540,${y}" fill="none" stroke="${sc}" stroke-width="3.5" opacity=".1" stroke-linecap="round"/><path d="M60,${y} Q200,${y-4} 300,${y+2} Q400,${y-2} 540,${y}" fill="none" stroke="${lc(sc,15)}" stroke-width="1" opacity=".3" stroke-linecap="round"/>`).join('')}
+    <ellipse cx="300" cy="78" rx="100" ry="45" fill="${sc}" opacity=".06" filter="url(#sh-g)"><animate attributeName="opacity" values=".06;.12;.04;.08;.06" dur="4s" repeatCount="indefinite"/></ellipse>
+    ${lbl}BARS · CONFINEMENT · HELD</text>`;
+  } else if(sym==='storm'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="50" rx="260" ry="55" fill="${sc}" opacity=".22" filter="url(#sh-wc)"><animate attributeName="ry" values="55;62;50;58;55" dur="4s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="180" cy="38" rx="160" ry="42" fill="${sc}" opacity=".2" filter="url(#sh-wc)"><animate attributeName="ry" values="42;48;38;44;42" dur="4s" begin="-1s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="420" cy="42" rx="140" ry="38" fill="${lc(sc,5)}" opacity=".18" filter="url(#sh-wc)"/>
+    <path d="M310,45 L288,85 L305,85 L280,125" stroke="${dm}" stroke-width="5" fill="none" opacity=".06" stroke-linecap="round"><animate attributeName="opacity" values=".06;.22;0;.14;.06" dur="3s" repeatCount="indefinite"/></path>
+    <path d="M310,45 L288,85 L305,85 L280,125" stroke="white" stroke-width="1.2" fill="none" opacity=".15" stroke-linecap="round"><animate attributeName="opacity" values=".15;.55;0;.35;.15" dur="3s" repeatCount="indefinite"/></path>
+    <path d="M0,85 Q80,72 160,82 Q240,92 320,78 Q400,64 480,76 Q540,84 600,76" fill="none" stroke="${dm}" stroke-width="3" opacity=".06" stroke-linecap="round"/>
+    <path d="M0,85 Q80,72 160,82 Q240,92 320,78 Q400,64 480,76 Q540,84 600,76" fill="none" stroke="${dm}" stroke-width="0.8" opacity=".2" stroke-linecap="round"/>
+    ${lbl}RAGE · OVERWHELM · WEATHER</text>`;
+  } else {
+    // mirror / default: dark organic mass
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <line x1="300" y1="0" x2="300" y2="${H}" stroke="${dm}" stroke-width="0.8" opacity=".18"/>
+    <ellipse cx="300" cy="80" rx="240" ry="68" fill="${sc}" opacity=".12" filter="url(#sh-a)"/>
+    <ellipse cx="300" cy="80" rx="180" ry="52" fill="${sc}" opacity=".16" filter="url(#sh-a)"/>
+    <ellipse cx="300" cy="80" rx="100" ry="32" fill="${bg}" opacity=".85"/>
+    <ellipse cx="300" cy="80" rx="90" ry="28" fill="${lc(bg,4)}" opacity=".8"/>
+    <path d="M140,20 Q180,55 220,80 Q260,105 290,125" fill="none" stroke="${dm}" stroke-width="2" opacity=".12" stroke-linecap="round"/>
+    <path d="M140,20 Q180,55 220,80 Q260,105 290,125" fill="none" stroke="${dm}" stroke-width="0.6" opacity=".28" stroke-linecap="round"/>
+    <path d="M460,20 Q420,55 380,80 Q340,105 310,125" fill="none" stroke="${dm}" stroke-width="2" opacity=".08" stroke-linecap="round"/>
+    <path d="M460,20 Q420,55 380,80 Q340,105 310,125" fill="none" stroke="${dm}" stroke-width="0.6" opacity=".22" stroke-linecap="round"/>
+    <ellipse cx="300" cy="80" rx="240" ry="68" fill="none" stroke="${sc}" stroke-width="1.2" opacity=".35"><animate attributeName="opacity" values=".35;.58;.24;.45;.35" dur="4s" repeatCount="indefinite"/></ellipse>
+    ${lbl}REFLECTION · REVERSAL · UNKNOWN FACE</text>`;
+  }
+  return`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${defs}${b}</svg>`;
+}
+
+function illoAnima(sym){
+  const W=300,H=180,bg=P.bg,gd=P.gold,pr=P.primary,ac=P.accent,dm=P.dim;
+  const defs=`<defs><filter id="an-a" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5"/></filter><filter id="an-g"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  const lbl=`<text x="150" y="170" font-size="7.5" fill="${dm}" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".4">`;
+  let b='';
+  if(sym==='music'){
+    const mkWave=(yo,amp,sw,op,dl='')=>{const d1=`M10,${yo} C45,${yo-amp} 75,${yo+amp} 110,${yo} C145,${yo-amp} 185,${yo+amp} 220,${yo} C255,${yo-amp} 285,${yo+amp} 290,${yo}`;const d2=`M10,${yo} C45,${yo+amp} 75,${yo-amp} 110,${yo} C145,${yo+amp} 185,${yo-amp} 220,${yo} C255,${yo+amp} 285,${yo-amp} 290,${yo}`;return`<path d="${d1}" fill="none" stroke="${gd}" stroke-width="${sw}" opacity="${op}" stroke-linecap="round"><animate attributeName="d" values="${d1};${d2};${d1}" dur="3s" begin="${dl}" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>`;};
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="150" cy="90" rx="130" ry="75" fill="${gd}" opacity=".03" filter="url(#an-g)"><animate attributeName="opacity" values=".03;.07;.02;.05;.03" dur="5s" repeatCount="indefinite"/></ellipse>
+    ${mkWave(55,14,3.5,.06,'')}${mkWave(55,14,1.2,.32,'')}
+    ${mkWave(75,18,4,.07,'-0.5s')}${mkWave(75,18,1.4,.38,'-0.5s')}
+    ${mkWave(95,22,4.5,.07,'-1s')}${mkWave(95,22,1.5,.42,'-1s')}
+    ${mkWave(115,18,4,.06,'-1.5s')}${mkWave(115,18,1.3,.35,'-1.5s')}
+    ${mkWave(135,14,3.5,.05,'-2s')}${mkWave(135,14,1.1,.28,'-2s')}
+    ${lbl}SOUND · FREQUENCY · TRANSMISSION</text>`;
+  } else if(sym==='writing'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="150" cy="90" rx="100" ry="70" fill="${gd}" opacity=".03" filter="url(#an-a)"/>
+    ${[45,58,71,84,97,110,123,136].map((y,i)=>{const w=60+Math.round(Math.sin(i*.8)*25),x=45+Math.round(Math.sin(i*.5)*15);return`<path d="M${x},${y} Q${x+w/2},${y-3} ${x+w},${y}" fill="none" stroke="${gd}" stroke-width="3" opacity=".06" stroke-linecap="round"/><path d="M${x},${y} Q${x+w/2},${y-3} ${x+w},${y}" fill="none" stroke="${gd}" stroke-width="0.8" opacity="${(0.12+i*.02).toFixed(2)}" stroke-linecap="round"/>`;}).join('')}
+    <ellipse cx="200" cy="75" rx="20" ry="28" fill="${gd}" opacity=".03" filter="url(#an-g)"><animate attributeName="opacity" values=".03;.08;.02;.06;.03" dur="4s" repeatCount="indefinite"/></ellipse>
+    <path d="M196,62 Q200,55 204,58" stroke="${gd}" stroke-width="2.5" fill="none" opacity=".08" stroke-linecap="round"/>
+    <path d="M196,62 Q200,55 204,58" stroke="${gd}" stroke-width="0.8" fill="none" opacity=".28" stroke-linecap="round"/>
+    ${lbl}WORD · LIGHT · THE PAGE</text>`;
+  } else if(sym==='visual'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    ${[[80,60,70,50,gd,.08],[180,50,80,55,ac,.06],[120,100,90,55,pr,.07],[200,110,70,45,gd,.06],[60,110,75,50,ac,.05]].map(([cx,cy,rx,ry,c,op])=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${c}" opacity="${op}" filter="url(#an-a)"><animate attributeName="opacity" values="${op};${+(op*1.7).toFixed(2)};${+(op*.6).toFixed(2)};${op}" dur="${4+cx%5}s" begin="-${cy%4}s" repeatCount="indefinite"/></ellipse>`).join('')}
+    <ellipse cx="150" cy="88" rx="40" ry="35" fill="${gd}" opacity=".04" filter="url(#an-g)"/>
+    ${lbl}COLOUR · VISION · FORM</text>`;
+  } else if(sym==='movement'){
+    const mkArm=(x1,y1,x2,y2,x2b,y2b,sw,op,dl='')=>`<path d="M${x1},${y1} Q${(x1+x2)/2},${(y1+y2)/2-8} ${x2},${y2}" fill="none" stroke="${gd}" stroke-width="${sw}" opacity="${op}" stroke-linecap="round"><animate attributeName="d" values="M${x1},${y1} Q${(x1+x2)/2},${(y1+y2)/2-8} ${x2},${y2};M${x1},${y1} Q${(x1+x2b)/2},${(y1+y2b)/2-8} ${x2b},${y2b};M${x1},${y1} Q${(x1+x2)/2},${(y1+y2)/2-8} ${x2},${y2}" dur="4s" begin="${dl}" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>`;
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="150" cy="88" rx="80" ry="65" fill="${gd}" opacity=".025" filter="url(#an-g)"/>
+    <circle cx="150" cy="50" r="10" fill="${gd}" opacity=".1" filter="url(#an-a)"/>
+    <circle cx="150" cy="50" r="8" fill="${gd}" opacity=".14"/>
+    <path d="M150,60 Q148,80 146,105" stroke="${gd}" stroke-width="4" fill="none" opacity=".1" stroke-linecap="round"/>
+    <path d="M150,60 Q148,80 146,105" stroke="${gd}" stroke-width="1.3" fill="none" opacity=".32" stroke-linecap="round"/>
+    ${mkArm(150,70,110,58,120,52,3.5,.08,'')}${mkArm(150,70,110,58,120,52,1.1,.28,'')}
+    ${mkArm(150,70,190,58,180,52,3.5,.06,'-0.5s')}${mkArm(150,70,190,58,180,52,1.1,.24,'-0.5s')}
+    <path d="M146,105 Q138,128 132,145" stroke="${gd}" stroke-width="4" fill="none" opacity=".08" stroke-linecap="round"/>
+    <path d="M146,105 Q138,128 132,145" stroke="${gd}" stroke-width="1.2" fill="none" opacity=".25" stroke-linecap="round"/>
+    <path d="M146,105 Q155,128 160,145" stroke="${gd}" stroke-width="3.5" fill="none" opacity=".07" stroke-linecap="round"/>
+    <path d="M146,105 Q155,128 160,145" stroke="${gd}" stroke-width="1.1" fill="none" opacity=".22" stroke-linecap="round"/>
+    ${lbl}FORM · GESTURE · THE LIVING BODY</text>`;
+  } else if(sym==='nature'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="150" cy="70" rx="110" ry="62" fill="${pr}" opacity=".07" filter="url(#an-a)"/>
+    <line x1="150" y1="160" x2="152" y2="88" stroke="${pr}" stroke-width="4" opacity=".15" stroke-linecap="round"/>
+    <line x1="150" y1="160" x2="152" y2="88" stroke="${lc(pr,18)}" stroke-width="1.3" opacity=".45" stroke-linecap="round"/>
+    <path d="M152,100 Q182,82 195,62" stroke="${pr}" stroke-width="5" fill="none" opacity=".14" stroke-linecap="round"><animate attributeName="d" values="M152,100 Q182,82 195,62;M152,100 Q185,80 198,60;M152,100 Q182,82 195,62" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>
+    <path d="M152,100 Q182,82 195,62" stroke="${lc(pr,20)}" stroke-width="1.5" fill="none" opacity=".42" stroke-linecap="round"><animate attributeName="d" values="M152,100 Q182,82 195,62;M152,100 Q185,80 198,60;M152,100 Q182,82 195,62" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>
+    <path d="M150,120 Q118,102 105,80" stroke="${pr}" stroke-width="4.5" fill="none" opacity=".12" stroke-linecap="round"><animate attributeName="d" values="M150,120 Q118,102 105,80;M150,120 Q116,100 103,78;M150,120 Q118,102 105,80" dur="4.5s" begin="-1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>
+    <path d="M150,120 Q118,102 105,80" stroke="${lc(pr,18)}" stroke-width="1.3" fill="none" opacity=".38" stroke-linecap="round"><animate attributeName="d" values="M150,120 Q118,102 105,80;M150,120 Q116,100 103,78;M150,120 Q118,102 105,80" dur="4.5s" begin="-1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>
+    <ellipse cx="195" cy="60" rx="18" ry="12" fill="${pr}" opacity=".12" filter="url(#an-a)"/>
+    <ellipse cx="105" cy="78" rx="16" ry="11" fill="${pr}" opacity=".1" filter="url(#an-a)"/>
+    ${lbl}ROOT · BRANCH · LIVING FORM</text>`;
+  } else {
+    // silence/still water
+    const mkRipple=(ry,op,dl)=>`<ellipse cx="150" cy="105" rx="60" ry="${ry}" fill="none" stroke="${gd}" stroke-width="0.8" opacity="${op}"><animate attributeName="opacity" values="${op};${+(op*1.6).toFixed(2)};${+(op*.4).toFixed(2)};${op}" dur="5s" begin="${dl}" repeatCount="indefinite"/></ellipse>`;
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <rect x="20" y="88" width="260" height="62" fill="${pr}" opacity=".06" filter="url(#an-a)"/>
+    <rect x="20" y="95" width="260" height="55" fill="${pr}" opacity=".08"/>
+    <line x1="20" y1="95" x2="280" y2="95" stroke="${lc(pr,20)}" stroke-width="1" opacity=".25"/>
+    ${mkRipple(6,.18,'0s')}${mkRipple(14,.12,'-1.5s')}${mkRipple(24,.08,'-3s')}${mkRipple(36,.05,'-4.5s')}
+    <circle cx="150" cy="95" r="2" fill="${gd}" opacity=".12" filter="url(#an-g)"><animate attributeName="opacity" values=".12;.22;.08;.16;.12" dur="5s" repeatCount="indefinite"/></circle>
+    <circle cx="150" cy="95" r="1" fill="${gd}" opacity=".35"><animate attributeName="opacity" values=".35;.6;.22;.45;.35" dur="5s" repeatCount="indefinite"/></circle>
+    ${lbl}STILLNESS · THE QUIET VOICE</text>`;
+  }
+  return`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${defs}${b}</svg>`;
+}
+
+function illoWound(sym){
+  const W=600,H=160,bg=P.bg,dm=P.dim,tx=P.text;
+  const wc='#8b3a3a';
+  const defs=`<defs><filter id="wd-g"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="wd-a" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5"/></filter></defs>`;
+  const lbl=`<text x="300" y="148" font-size="8" fill="${dm}" font-family="Cinzel,serif" letter-spacing="3" text-anchor="middle" opacity=".45">`;
+  let b='';
+  if(sym==='fracture'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <rect x="0" y="78" width="${W}" height="82" fill="${lc(bg,5)}" opacity=".8"/>
+    <rect x="0" y="80" width="${W}" height="80" fill="${lc(bg,8)}" opacity=".9"/>
+    <path d="M300,0 L294,42 L310,65 L288,90 L302,120 L295,160" fill="none" stroke="${wc}" stroke-width="8" opacity=".18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M300,0 L294,42 L310,65 L288,90 L302,120 L295,160" fill="none" stroke="${wc}" stroke-width="2.5" opacity=".65" stroke-linecap="round" stroke-linejoin="round"><animate attributeName="opacity" values=".65;.9;.5;.78;.65" dur="3s" repeatCount="indefinite"/></path>
+    <path d="M294,42 L265,50 L260,45" fill="none" stroke="${wc}" stroke-width="1.2" opacity=".35" stroke-linecap="round"/>
+    <path d="M310,65 L338,58 L342,62" fill="none" stroke="${wc}" stroke-width="1.2" opacity=".3" stroke-linecap="round"/>
+    <path d="M288,90 L258,98 L255,93" fill="none" stroke="${wc}" stroke-width="1" opacity=".28" stroke-linecap="round"/>
+    <path d="M300,0 L294,42 L310,65 L288,90 L302,120 L295,160" fill="none" stroke="${wc}" stroke-width="18" opacity=".04" stroke-linecap="round" filter="url(#wd-g)"><animate attributeName="opacity" values=".04;.1;.02;.06;.04" dur="3s" repeatCount="indefinite"/></path>
+    ${lbl}FRACTURE · SPLIT · THE OPENED PLACE</text>`;
+  } else if(sym==='weight'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="95" rx="260" ry="45" fill="${wc}" opacity=".12" filter="url(#wd-a)"><animate attributeName="ry" values="45;50;42;47;45" dur="4s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="100" rx="200" ry="35" fill="${wc}" opacity=".18" filter="url(#wd-a)"><animate attributeName="ry" values="35;40;32;37;35" dur="4s" begin="-1s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="105" rx="120" ry="22" fill="${wc}" opacity=".22"/>
+    <path d="M60,35 Q180,28 300,32 Q420,36 540,30" fill="none" stroke="${wc}" stroke-width="6" opacity=".08" stroke-linecap="round"/>
+    <path d="M60,35 Q180,28 300,32 Q420,36 540,30" fill="none" stroke="${wc}" stroke-width="1.5" opacity=".28" stroke-linecap="round"/>
+    ${Array.from({length:7},(_,i)=>{const x=80+i*65;return`<line x1="${x}" y1="36" x2="${x-2}" y2="${65+i%2*8}" stroke="${wc}" stroke-width="2.5" opacity=".1" stroke-linecap="round"/><line x1="${x}" y1="36" x2="${x-2}" y2="${65+i%2*8}" stroke="${wc}" stroke-width="0.7" opacity=".25" stroke-linecap="round"/>`;}).join('')}
+    <ellipse cx="300" cy="105" rx="120" ry="22" fill="none" stroke="${wc}" stroke-width="1.2" opacity=".4"><animate attributeName="opacity" values=".4;.65;.28;.5;.4" dur="3.5s" repeatCount="indefinite"/></ellipse>
+    ${lbl}WEIGHT · PRESSURE · THE CARRIED THING</text>`;
+  } else if(sym==='absence'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="75" rx="260" ry="65" fill="${wc}" opacity=".07" filter="url(#wd-a)"><animate attributeName="opacity" values=".07;.13;.04;.09;.07" dur="5s" repeatCount="indefinite"/></ellipse>
+    ${Array.from({length:18},(_,i)=>{const x=20+i*32,y=12+(i*47%65),r=+(0.4+(i*9%8)/18).toFixed(1);return`<circle cx="${x}" cy="${y}" r="${r}" fill="${wc}" opacity="${+(0.12+i*9%18/100).toFixed(2)}"><animate attributeName="opacity" values="${+(0.12+i*9%18/100).toFixed(2)};${+(0.28+i*9%18/100).toFixed(2)};0;${+(0.12+i*9%18/100).toFixed(2)}" dur="${+(3+i%4).toFixed(0)}s" begin="-${+(i*.8%4).toFixed(1)}s" repeatCount="indefinite"/></circle>`;}).join('')}
+    <ellipse cx="300" cy="78" rx="12" ry="15" fill="${wc}" opacity=".12" filter="url(#wd-g)"><animate attributeName="opacity" values=".12;.22;.07;.15;.12" dur="5s" repeatCount="indefinite"/></ellipse>
+    <circle cx="300" cy="78" r="4" fill="${wc}" opacity=".15"><animate attributeName="opacity" values=".15;.3;.08;.2;.15" dur="5s" repeatCount="indefinite"/></circle>
+    ${lbl}ABSENCE · HOLLOW · THE UNOCCUPIED SPACE</text>`;
+  } else if(sym==='erasure'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    ${[{op:.35,blur:0},{op:.22,blur:1.5},{op:.12,blur:3},{op:.05,blur:6}].map(({op,blur},i)=>`<g opacity="${op}" filter="${blur>0?`url(#wd-g)`:''}">${i===0?`
+    <ellipse cx="300" cy="75" rx="25" ry="35" fill="${wc}" opacity=".15" filter="url(#wd-a)"/>
+    <path d="M292,55 Q296,50 300,48 Q304,50 308,55" fill="none" stroke="${wc}" stroke-width="1.5" opacity=".4" stroke-linecap="round"/>
+    <path d="M295,60 Q298,62 302,60" fill="none" stroke="${wc}" stroke-width="1" opacity=".6" stroke-linecap="round"/>`:''}</g>`).join('')}
+    <rect x="150" y="30" width="300" height="90" fill="${bg}" opacity=".0"/>
+    ${Array.from({length:5},(_,i)=>{const o=0.5-i*.08;return`<rect x="0" y="${25+i*20}" width="${W}" height="18" fill="${bg}" opacity="${+(o*.15).toFixed(2)}"/>`}).join('')}
+    <ellipse cx="300" cy="75" rx="55" ry="45" fill="${wc}" opacity=".04" filter="url(#wd-g)"><animate attributeName="opacity" values=".04;.1;0;.06;.04" dur="4s" repeatCount="indefinite"/></ellipse>
+    ${lbl}ERASURE · UNSEEN · THE FADING</text>`;
+  } else {
+    // default: wound scar
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="80" rx="255" ry="65" fill="${wc}" opacity=".1"><animate attributeName="rx" values="255;270;248;262;255" dur="4s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="290" cy="75" rx="165" ry="45" fill="${wc}" opacity=".12"><animate attributeName="rx" values="165;178;158;170;165" dur="4s" begin="-1s" repeatCount="indefinite"/></ellipse>
+    <path d="M225,88 Q256,106 280,102 Q304,110 328,102 Q352,106 375,88" fill="none" stroke="${lc(bg,4)}" stroke-width="12" opacity=".45" stroke-linecap="round"/>
+    <path d="M225,90 Q258,108 282,104 Q306,112 330,104 Q354,108 373,90" fill="${bg}" opacity=".88" filter="url(#wd-a)"/>
+    <path d="M225,88 Q256,106 280,102 Q304,110 328,102 Q352,106 375,88" fill="none" stroke="${wc}" stroke-width="2.5" opacity=".7" stroke-linecap="round"><animate attributeName="opacity" values=".7;.95;.55;.82;.7" dur="2.8s" repeatCount="indefinite"/></path>
+    <ellipse cx="300" cy="100" rx="50" ry="8" fill="${bg}" opacity=".8"><animate attributeName="opacity" values=".8;.95;.65;.88;.8" dur="3.2s" repeatCount="indefinite"/></ellipse>
+    <path d="M225,88 Q256,106 280,102 Q304,110 328,102 Q352,106 375,88" fill="none" stroke="${wc}" stroke-width="6" opacity=".1" filter="url(#wd-g)"><animate attributeName="opacity" values=".1;.22;.06;.15;.1" dur="2.8s" repeatCount="indefinite"/></path>
+    ${lbl}OPEN · SPATIAL · FOUNDATIONAL</text>`;
+  }
+  return`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${defs}${b}</svg>`;
+}
+
+function illoGrowing(sym){
+  const W=600,H=160,bg=P.bg,pr=P.primary,ac=P.accent,dm=P.dim,gd=P.gold;
+  const defs=`<defs><filter id="gw-g"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="gw-a" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5"/></filter></defs>`;
+  const lbl=(t)=>`<text x="300" y="148" font-size="8" fill="${dm}" font-family="Cinzel,serif" letter-spacing="3" text-anchor="middle" opacity=".4">${t}</text>`;
+  let b='';
+  if(sym==='flame'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="95" rx="120" ry="55" fill="${gd}" opacity=".04" filter="url(#gw-g)"><animate attributeName="opacity" values=".04;.1;.02;.07;.04" dur="2.5s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="95" rx="50" ry="35" fill="${gd}" opacity=".06" filter="url(#gw-g)"><animate attributeName="opacity" values=".06;.14;.03;.1;.06" dur="2.5s" begin="-.3s" repeatCount="indefinite"/></ellipse>
+    <line x1="300" y1="145" x2="300" y2="120" stroke="${gd}" stroke-width="3" opacity=".25" stroke-linecap="round"/>
+    <line x1="300" y1="145" x2="300" y2="120" stroke="${lc(gd,15)}" stroke-width="1" opacity=".5" stroke-linecap="round"/>
+    <ellipse cx="300" cy="108" rx="6" ry="12" fill="${gd}" opacity=".35"><animate attributeName="ry" values="12;15;9;13;10;12" keyTimes="0;0.15;0.3;0.5;0.75;1" dur="2s" repeatCount="indefinite"/><animate attributeName="rx" values="6;4.5;7;5;6.5;6" keyTimes="0;0.15;0.3;0.5;0.75;1" dur="2s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="106" rx="3.5" ry="7" fill="${lc(gd,30)}" opacity=".55"><animate attributeName="ry" values="7;9;5;8;6;7" keyTimes="0;0.15;0.3;0.5;0.75;1" dur="2s" repeatCount="indefinite"/></ellipse>
+    ${lbl('IGNITION · WARMTH · THE FIRST LIGHT')}`;
+  } else if(sym==='leaf'){
+    const leafD1=`M300,120 Q318,88 310,62 Q302,40 300,35 Q298,40 290,62 Q282,88 300,120`;
+    const leafD2=`M300,120 Q320,86 312,60 Q304,38 300,34 Q296,38 288,60 Q280,86 300,120`;
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="75" rx="80" ry="65" fill="${pr}" opacity=".04" filter="url(#gw-a)"/>
+    <line x1="300" y1="145" x2="300" y2="35" stroke="${pr}" stroke-width="3.5" opacity=".12" stroke-linecap="round"/>
+    <line x1="300" y1="145" x2="300" y2="35" stroke="${lc(pr,16)}" stroke-width="1" opacity=".38" stroke-linecap="round"/>
+    <path d="${leafD1}" fill="${pr}" opacity=".12" filter="url(#gw-a)"><animate attributeName="d" values="${leafD1};${leafD2};${leafD1}" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>
+    <path d="${leafD1}" fill="none" stroke="${lc(pr,18)}" stroke-width="1.5" opacity=".45"><animate attributeName="d" values="${leafD1};${leafD2};${leafD1}" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/></path>
+    <path d="M300,120 Q308,90 312,62 Q308,45 300,35" fill="none" stroke="${lc(pr,25)}" stroke-width="0.6" opacity=".3" stroke-linecap="round"/>
+    ${Array.from({length:4},(_,i)=>{const y=50+i*18,x=300+10+i*3,xb=300-10-i*3;return`<path d="M300,${y} Q${x},${y-4} ${x+6},${y-10}" fill="none" stroke="${lc(pr,20)}" stroke-width="0.6" opacity=".22" stroke-linecap="round"/><path d="M300,${y} Q${xb},${y-4} ${xb-6},${y-10}" fill="none" stroke="${lc(pr,20)}" stroke-width="0.6" opacity=".22" stroke-linecap="round"/>`;}).join('')}
+    ${lbl('UNFURLING · GROWTH · THE OPENING')}`;
+  } else if(sym==='dawn'){
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="82" rx="280" ry="60" fill="${gd}" opacity=".03" filter="url(#gw-g)"><animate attributeName="opacity" values=".03;.07;.02;.05;.03" dur="6s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="82" rx="160" ry="40" fill="${gd}" opacity=".04" filter="url(#gw-a)"/>
+    <ellipse cx="300" cy="82" rx="60" ry="18" fill="${gd}" opacity=".07"/>
+    ${Array.from({length:8},(_,i)=>{const ang=(i/8)*Math.PI,len=55+i*8,x2=Math.round(300+Math.cos(ang-Math.PI/2)*len),y2=Math.round(82+Math.sin(ang-Math.PI/2)*len);return`<line x1="300" y1="82" x2="${x2}" y2="${y2}" stroke="${gd}" stroke-width="2" opacity=".05" stroke-linecap="round"/><line x1="300" y1="82" x2="${x2}" y2="${y2}" stroke="${gd}" stroke-width="0.5" opacity=".12" stroke-linecap="round"/>`;}).join('')}
+    <line x1="60" y1="95" x2="540" y2="95" stroke="${dm}" stroke-width="3" opacity=".1" stroke-linecap="round"/>
+    <line x1="60" y1="95" x2="540" y2="95" stroke="${dm}" stroke-width="0.8" opacity=".25" stroke-linecap="round"/>
+    <rect x="0" y="96" width="${W}" height="64" fill="${lc(bg,5)}" opacity=".6"/>
+    ${Array.from({length:10},(_,i)=>{const x=30+i*55,y=15+(i*37%55);return`<circle cx="${x}" cy="${y}" r="${0.5+i%4*.3}" fill="white" opacity="${+(0.12+i%5*.04).toFixed(2)}"><animate attributeName="opacity" values="${+(0.12+i%5*.04).toFixed(2)};0;0" dur="8s" begin="-${+(i*.8).toFixed(1)}s" repeatCount="indefinite"/></circle>`;}).join('')}
+    ${lbl('DAWN · EMERGENCE · THE FIRST LIGHT')}`;
+  } else if(sym==='pool'){
+    const mkR=(rx,ry,op,dl)=>`<ellipse cx="300" cy="95" rx="${rx}" ry="${ry}" fill="none" stroke="${pr}" stroke-width="0.8" opacity="${op}"><animate attributeName="opacity" values="${op};${+(op*1.8).toFixed(2)};${+(op*.35).toFixed(2)};${op}" dur="6s" begin="${dl}" repeatCount="indefinite"/></ellipse>`;
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="300" cy="95" rx="250" ry="50" fill="${pr}" opacity=".08" filter="url(#gw-a)"/>
+    <ellipse cx="300" cy="95" rx="240" ry="46" fill="${pr}" opacity=".1"/>
+    <line x1="60" y1="72" x2="540" y2="72" stroke="${lc(pr,18)}" stroke-width="1" opacity=".2"/>
+    ${mkR(80,18,.22,'0s')}${mkR(130,28,.15,'-1.8s')}${mkR(185,38,.1,'-3.6s')}${mkR(240,46,.06,'-5.2s')}
+    <circle cx="300" cy="72" r="2.5" fill="${pr}" opacity=".1" filter="url(#gw-g)"><animate attributeName="opacity" values=".1;.22;.06;.14;.1" dur="6s" repeatCount="indefinite"/></circle>
+    <circle cx="300" cy="72" r="1" fill="${lc(pr,40)}" opacity=".4"><animate attributeName="opacity" values=".4;.7;.25;.5;.4" dur="6s" repeatCount="indefinite"/></circle>
+    ${lbl('STILLNESS · DEPTH · THE QUIET SURFACE')}`;
+  } else {
+    // door / opening
+    b=`<rect width="${W}" height="${H}" fill="${bg}"/>
+    <path d="M240,145 L240,30 L360,30 L360,145" fill="none" stroke="${dm}" stroke-width="5" opacity=".1" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M240,145 L240,30 L360,30 L360,145" fill="none" stroke="${dm}" stroke-width="1.5" opacity=".28" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M243,145 L243,33 L357,33 L357,145" fill="${pr}" opacity=".04"/>
+    <ellipse cx="300" cy="88" rx="80" ry="70" fill="${pr}" opacity=".06" filter="url(#gw-g)"><animate attributeName="opacity" values=".06;.14;.03;.09;.06" dur="5s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="88" rx="40" ry="40" fill="${lc(pr,20)}" opacity=".05" filter="url(#gw-g)"><animate attributeName="opacity" values=".05;.12;.02;.08;.05" dur="5s" begin="-1s" repeatCount="indefinite"/></ellipse>
+    <circle cx="348" cy="88" r="3" fill="${dm}" opacity=".4"/>
+    <circle cx="348" cy="88" r="1.5" fill="${dm}" opacity=".6"/>
+    <path d="M215,145 L240,145" stroke="${dm}" stroke-width="3" opacity=".12" stroke-linecap="round"/>
+    <path d="M215,145 L240,145" stroke="${dm}" stroke-width="0.8" opacity=".3" stroke-linecap="round"/>
+    <path d="M360,145 L385,145" stroke="${dm}" stroke-width="3" opacity=".12" stroke-linecap="round"/>
+    <path d="M360,145 L385,145" stroke="${dm}" stroke-width="0.8" opacity=".3" stroke-linecap="round"/>
+    ${lbl('OPENING · PASSAGE · THE THRESHOLD CROSSED')}`;
+  }
+  return`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${defs}${b}</svg>`;
+}
+
+function illoVessel(){
+  const W=300,H=180,bg=P.bg,ac=P.accent,dm=P.dim;
+  const defs=`<defs><filter id="vs-g"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="vs-a" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5"/></filter></defs>`;
+  return`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${defs}
+    <rect width="${W}" height="${H}" fill="${bg}"/>
+    <ellipse cx="150" cy="90" rx="100" ry="75" fill="${ac}" opacity=".03" filter="url(#vs-g)"><animate attributeName="opacity" values=".03;.07;.02;.05;.03" dur="7s" repeatCount="indefinite"/></ellipse>
+    <path d="M106,145 Q90,120 88,90 Q86,62 100,42 Q116,24 150,22 Q184,24 200,42 Q214,62 212,90 Q210,120 194,145Z" fill="none" stroke="${ac}" stroke-width="6" opacity=".1" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M106,145 Q90,120 88,90 Q86,62 100,42 Q116,24 150,22 Q184,24 200,42 Q214,62 212,90 Q210,120 194,145Z" fill="none" stroke="${lc(ac,15)}" stroke-width="1.8" opacity=".38" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="150" cy="22" rx="35" ry="7" fill="none" stroke="${ac}" stroke-width="1" opacity=".3"/>
+    ${Array.from({length:5},(_,i)=>{const y=50+i*16;return`<path d="M${92+i*2},${y} Q150,${y-5} ${208-i*2},${y}" fill="none" stroke="${ac}" stroke-width="2" opacity="${+(0.06+i*.01).toFixed(2)}" stroke-linecap="round"/><path d="M${92+i*2},${y} Q150,${y-5} ${208-i*2},${y}" fill="none" stroke="${lc(ac,12)}" stroke-width="0.6" opacity="${+(0.14+i*.02).toFixed(2)}" stroke-linecap="round"/>`;}).join('')}
+    <ellipse cx="150" cy="90" rx="40" ry="35" fill="${ac}" opacity=".04" filter="url(#vs-g)"><animate attributeName="opacity" values=".04;.09;.02;.06;.04" dur="6s" repeatCount="indefinite"/></ellipse>
+    <text x="150" y="170" font-size="7.5" fill="${dm}" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".4">CONTAINER · CARRIED · GIVEN</text>
+  </svg>`;
+}
+
+// ══ 8b. Card builder ═══════════════════════════════════════════════════════
+function card({label,title,desc,color,tags,fullWidth,editKey,illo}){
   const sw=fullWidth?'grid-column:1/-1;':'';
   const tagsHtml=(tags&&tags.length)?`<div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:'';
   const descContent=!viewMode&&editKey
     ?`<div class="field-editable" data-key="${editKey}"><p class="cd">${esc(desc||'')}</p><button class="edit-btn" title="Edit">✏</button></div>`
     :(desc?`<p class="cd">${esc(desc)}</p>`:'');
-  return`<div class="card" style="${sw}--c:${color}"><div class="cb"></div><span class="cl">${label}</span><div class="ct">${title}</div>${descContent}${tagsHtml}</div>`;
+  const illoHtml=illo?`<div class="card-illo">${illo}</div>`:'';
+  const textPad=illo?'class="card-text"':'';
+  return`<div class="card" style="${sw}--c:${color};${illo?'padding:0;':''}"><div class="cb"></div>${illoHtml}<div ${textPad}><span class="cl">${label}</span><div class="ct">${title}</div>${descContent}${tagsHtml}</div></div>`;
 }
 
 // ══ 9. Populate page ══════════════════════════════════════════════════════
@@ -473,13 +874,19 @@ function populate(){
   initMapInteractions();
   animateMapIn();
 
-  document.getElementById('landscapeCard').innerHTML=card({label:'THE CENTRE',title:`${landscapeName} — The True Interior Self`,desc:A.interior_landscape||'',color:P.primary,tags:tagsFromText(A.interior_landscape,4),editKey:'interior_landscape'});
+  const symLand=symFromText(A.interior_landscape,'landscape');
+  const symShad=symFromText(A.shadow_description,'shadow');
+  const symAnim=symFromText(A.soul_voice,'anima');
+  const symWound=symFromText(A.core_wound_belief,'wound');
+  const symGrow=symFromText(A.whats_growing,'growing');
+
+  document.getElementById('landscapeCard').innerHTML=card({label:'THE CENTRE',title:`${landscapeName} — The True Interior Self`,desc:A.interior_landscape||'',color:P.primary,tags:tagsFromText(A.interior_landscape,4),editKey:'interior_landscape',illo:illoLandscape(symLand)});
   document.getElementById('forcesGrid').innerHTML=
-    card({label:'THE SHADOW',title:shadowName,desc:A.shadow_description||'',color:shadowColor,tags:tagsFromText(A.shadow_description,4),fullWidth:true,editKey:'shadow_description'})+
-    card({label:'THE ANIMA / ANIMUS',title:'Soul Voice',desc:A.soul_voice||'',color:P.gold,tags:tagsFromText(A.soul_voice,3),editKey:'soul_voice'})+
-    card({label:'THE VESSEL',title:'What You Carry',desc:A.what_you_carry||A.puer_pattern||'',color:P.accent,tags:tagsFromText(A.what_you_carry||A.puer_pattern,3),editKey:'what_you_carry'});
-  document.getElementById('woundCard').innerHTML=card({label:'THE FOUNDATIONAL WOUND',title:'The Installed Belief',desc:A.core_wound_belief||'',color:'#8b4444',tags:tagsFromText(A.core_wound_belief,4),editKey:'core_wound_belief'});
-  document.getElementById('growingCard').innerHTML=card({label:'WHAT IS BEGINNING',title:'The Emerging Quality',desc:A.whats_growing||A.symbolic_languages||'',color:P.accent,tags:tagsFromText(A.whats_growing||A.symbolic_languages,4),editKey:'whats_growing'});
+    card({label:'THE SHADOW',title:shadowName,desc:A.shadow_description||'',color:shadowColor,tags:tagsFromText(A.shadow_description,4),fullWidth:true,editKey:'shadow_description',illo:illoShadow(symShad)})+
+    card({label:'THE ANIMA / ANIMUS',title:'Soul Voice',desc:A.soul_voice||'',color:P.gold,tags:tagsFromText(A.soul_voice,3),editKey:'soul_voice',illo:illoAnima(symAnim)})+
+    card({label:'THE VESSEL',title:'What You Carry',desc:A.what_you_carry||A.puer_pattern||'',color:P.accent,tags:tagsFromText(A.what_you_carry||A.puer_pattern,3),editKey:'what_you_carry',illo:illoVessel()});
+  document.getElementById('woundCard').innerHTML=card({label:'THE FOUNDATIONAL WOUND',title:'The Installed Belief',desc:A.core_wound_belief||'',color:'#8b4444',tags:tagsFromText(A.core_wound_belief,4),editKey:'core_wound_belief',illo:illoWound(symWound)});
+  document.getElementById('growingCard').innerHTML=card({label:'WHAT IS BEGINNING',title:'The Emerging Quality',desc:A.whats_growing||A.symbolic_languages||'',color:P.accent,tags:tagsFromText(A.whats_growing||A.symbolic_languages,4),editKey:'whats_growing',illo:illoGrowing(symGrow)});
 
   // Five words
   const fw=document.getElementById('fiveWords');
