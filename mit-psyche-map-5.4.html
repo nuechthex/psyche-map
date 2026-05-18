@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mit — Psyche Map v5.3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+:root {
+  --bg:#0a0a0f; --text:#e8e0d5; --dim:#8a8070;
+  --gold:#c9a84c; --gold-s:#e8d5a3;
+  --valley:#4a7c6a; --sphere:#6b1fa0;
+  --anima:#c9a84c; --puer:#c87040; --senex:#8a7a50;
+  --wound:#8b3a3a; --goddess:#8b7bb0; --witch:#6b8cb0;
+  --vessel:#4a8a6a; --healer:#7a9a8a;
+  --pixie:#9a3a8a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif;min-height:100vh;overflow-x:hidden;}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.star{position:absolute;border-radius:50%;background:white;animation:tw var(--d) ease-in-out infinite var(--dl);}
+@keyframes tw{0%,100%{opacity:var(--lo);}50%{opacity:var(--hi);}}
+.page{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:3rem 1.5rem 6rem;}
+.hdr{text-align:center;margin-bottom:4rem;}
+.hdr h1{font-family:'Cinzel',serif;font-size:clamp(1.3rem,4vw,2rem);font-weight:400;letter-spacing:.35em;color:var(--gold);margin-bottom:.5rem;}
+.hdr p{font-size:.95rem;font-style:italic;color:var(--dim);letter-spacing:.12em;}
+.myth{border-left:2px solid var(--gold);padding:1.6rem 1.8rem;background:rgba(201,168,76,.03);margin-bottom:4rem;position:relative;}
+.myth::before{content:'✦';position:absolute;top:-.65rem;left:-.55rem;color:var(--gold);background:var(--bg);font-size:.9rem;padding:0 .2rem;}
+.myth-lbl{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.35em;color:var(--gold);display:block;margin-bottom:.8rem;}
+.myth p{font-size:1rem;font-style:italic;line-height:1.85;color:var(--gold-s);}
+.sec{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.4em;color:var(--dim);text-align:center;margin:3rem 0 1.5rem;position:relative;}
+.sec::before,.sec::after{content:'';position:absolute;top:50%;width:28%;height:1px;background:linear-gradient(to right,transparent,rgba(138,128,112,.25));}
+.sec::before{right:53%;}
+.sec::after{left:53%;background:linear-gradient(to left,transparent,rgba(138,128,112,.25));}
+.map-wrap{width:100%;margin-bottom:1rem;}
+.map-wrap svg{width:100%;height:auto;display:block;}
+.legend{display:flex;flex-wrap:wrap;gap:.8rem 1.5rem;justify-content:center;margin:1.5rem 0 3rem;}
+.li{display:flex;align-items:center;gap:.5rem;font-size:.78rem;font-style:italic;color:var(--dim);}
+.ll{width:28px;height:2px;border-radius:1px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1rem;}
+@media(max-width:520px){.grid{grid-template-columns:1fr;}}
+.card{padding:1.2rem 1.4rem 1.2rem 1.6rem;position:relative;overflow:hidden;border-radius:1px;transition:transform .25s,box-shadow .25s;cursor:default;}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.45);}
+.card::before{content:'';position:absolute;inset:0;background:var(--c);opacity:.06;transition:opacity .25s;}
+.card:hover::before{opacity:.11;}
+.cb{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c);opacity:.85;}
+.cl{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.22em;color:var(--c);display:block;margin-bottom:.3rem;}
+.ct{font-size:1rem;font-weight:400;margin-bottom:.4rem;color:var(--text);line-height:1.3;}
+.cd{font-size:.8rem;font-style:italic;color:var(--dim);line-height:1.55;}
+.tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;}
+.tag{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:.12rem .45rem;border:1px solid var(--c);border-radius:20px;color:var(--c);opacity:.65;}
+.sphere-card{background:linear-gradient(135deg,#100620,#1a0a2e)!important;border:1px solid rgba(107,31,160,.25)!important;}
+@keyframes sp{0%,100%{opacity:.4;}50%{opacity:.9;}} .sp-pulse{animation:sp 4s ease-in-out infinite;}
+@keyframes anima-wave{0%,100%{opacity:.25;}50%{opacity:.6;}}
+@keyframes anima-figure-pulse{0%,100%{opacity:.85;}50%{opacity:.6;}}
+.anima-figure{animation:anima-figure-pulse 6s ease-in-out infinite;}
+.anima-ripple{animation:anima-wave 3s ease-in-out infinite;}
+@keyframes lantern-flicker{0%{opacity:.35;}15%{opacity:.58;}30%{opacity:.28;}45%{opacity:.62;}60%{opacity:.32;}75%{opacity:.52;}100%{opacity:.35;}}
+@keyframes lantern-glow{0%,100%{opacity:.07;}20%{opacity:.16;}40%{opacity:.04;}65%{opacity:.18;}80%{opacity:.05;}}
+.lantern-flame{animation:lantern-flicker 2.1s ease-in-out infinite;}
+.lantern-glow{animation:lantern-glow 2.1s ease-in-out infinite;}
+@keyframes torch-flame{0%,100%{opacity:.6;}25%{opacity:.88;}50%{opacity:.42;}75%{opacity:.8;}}
+.torch-flame{animation:torch-flame 1.8s ease-in-out infinite;}
+@keyframes wound-breathe{0%,100%{opacity:.5;}50%{opacity:.78;}}
+@keyframes wound-breathe-2{0%,100%{opacity:.35;}50%{opacity:.58;}}
+@keyframes wound-wisp{0%,100%{opacity:.25;}50%{opacity:.48;}}
+@keyframes wound-wisp-2{0%,100%{opacity:.2;}50%{opacity:.4;}}
+@keyframes wound-wisp-3{0%,100%{opacity:.18;}50%{opacity:.35;}}
+@keyframes wound-pulse{0%,100%{opacity:.35;}40%{opacity:.72;}70%{opacity:.22;}}
+@keyframes wound-interior{0%,100%{opacity:.8;}35%{opacity:.55;}65%{opacity:.95;}}
+.wound-gas{animation:wound-breathe 4s ease-in-out infinite;}
+.wound-gas-2{animation:wound-breathe-2 4s ease-in-out infinite;animation-delay:-1.2s;}
+.wound-wisp{animation:wound-wisp 3.5s ease-in-out infinite;}
+.wound-wisp-2{animation:wound-wisp-2 3.5s ease-in-out infinite;animation-delay:-1s;}
+.wound-wisp-3{animation:wound-wisp-3 3.5s ease-in-out infinite;animation-delay:-2s;}
+.wound-edge{animation:wound-pulse 2.8s ease-in-out infinite;}
+.wound-deep{animation:wound-interior 3.2s ease-in-out infinite;}
+@keyframes puer-drift{0%,100%{opacity:.6;transform:translateY(0);}50%{opacity:.85;transform:translateY(-2px);}}
+@keyframes puer-spark{0%,100%{opacity:.2;}50%{opacity:.65;}}
+.puer-form{animation:puer-drift 5s ease-in-out infinite;}
+.puer-spark{animation:puer-spark 2.5s ease-in-out infinite;}
+@keyframes healer-breathe{0%,100%{opacity:.55;}50%{opacity:.8;}}
+.healer-form{animation:healer-breathe 7s ease-in-out infinite;}
+@keyframes pixie-flicker{0%,100%{opacity:.7;}30%{opacity:.95;}55%{opacity:.5;}80%{opacity:.88;}}
+@keyframes pixie-orbit{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
+.pixie-form{animation:pixie-flicker 3s ease-in-out infinite;}
+.pixie-drift{animation:pixie-orbit 4s ease-in-out infinite;}
+.five{display:flex;justify-content:center;flex-wrap:wrap;gap:.8rem;margin:1.5rem 0 3rem;}
+.card-illo{width:100%;aspect-ratio:2/3;position:relative;overflow:hidden;border-radius:2px 2px 0 0;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:1.1rem;}
+.card-illo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;}
+.card-illo .tarot-frame{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.fw{font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.28em;color:var(--gold);padding:.35rem .9rem;border:1px solid rgba(201,168,76,.3);}
+.dg{border:1px solid rgba(138,128,112,.18);padding:1.6rem;background:rgba(255,255,255,.015);margin-top:2rem;}
+.dg h3{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.35em;color:var(--dim);margin-bottom:1.2rem;}
+.step{display:flex;gap:1rem;margin-bottom:.8rem;}
+.sn{font-family:'Cinzel',serif;font-size:.65rem;color:var(--gold);min-width:1.5rem;padding-top:.1rem;}
+.step p{font-size:.82rem;font-style:italic;color:var(--dim);line-height:1.6;}
+.step strong{color:var(--text);font-style:normal;font-weight:400;}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div class="page">
+
+<div class="hdr">
+  <h1>MIT — PSYCHE MAP</h1>
+  <p>a cartography of the interior world</p>
+</div>
+
+<div class="myth">
+  <span class="myth-lbl">THE MYTH</span>
+  <p>A vessel made before choice for the transmission of the unseen. Set apart early — not by rejection but by nature. Wounded in a way that blocked the channel. The constructed architecture collapsed, and what was found in the rubble was the original signal, untouched. The work now is not becoming something new. It is clearing the channel. The water bearer does not keep the water — it was always meant for others. This was written in the stars before it was named anywhere else. <em>Mais bien sûr.</em></p>
+</div>
+
+<div class="sec">RELATIONSHIP MAP</div>
+
+<div class="map-wrap">
+<svg viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="bg" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="#121222"/>
+    <stop offset="100%" stop-color="#0a0a0f"/>
+  </radialGradient>
+  <radialGradient id="vf" cx="40%" cy="60%" r="60%">
+    <stop offset="0%" stop-color="#2d5a42"/>
+    <stop offset="55%" stop-color="#1a3328"/>
+    <stop offset="100%" stop-color="#0d1a14"/>
+  </radialGradient>
+
+  <!-- Subtle grain texture — just enough to kill flat plastic fills, not blurry -->
+  <filter id="grain" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+    <feColorMatrix type="saturate" values="0" in="noise" result="grey"/>
+    <feBlend in="SourceGraphic" in2="grey" mode="multiply" result="blend"/>
+    <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+  </filter>
+
+  <!-- Very gentle atmospheric edge softening — only used on background washes, not strokes -->
+  <filter id="atmo" x="-15%" y="-15%" width="130%" height="130%">
+    <feGaussianBlur stdDeviation="1.2"/>
+  </filter>
+
+  <!-- Glow for ambient halos — node backgrounds only -->
+  <filter id="gv"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="sf"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+  <!-- Lantern warm glow only -->
+  <filter id="warm-glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+  <marker id="ag" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L0,7 L8,3.5 z" fill="#c9a84c" opacity=".7"/></marker>
+  <marker id="ar" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L0,7 L8,3.5 z" fill="#8b3a3a" opacity=".7"/></marker>
+  <marker id="ap" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L0,7 L8,3.5 z" fill="#6b1fa0" opacity=".6"/></marker>
+  <marker id="at" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L0,7 L8,3.5 z" fill="#4a8a6a" opacity=".8"/></marker>
+  <marker id="ad" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L0,7 L8,3.5 z" fill="#8a8070" opacity=".5"/></marker>
+  <marker id="ah" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L0,7 L8,3.5 z" fill="#7a9a8a" opacity=".5"/></marker>
+  <marker id="apx" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L0,7 L8,3.5 z" fill="#9a3a8a" opacity=".7"/></marker>
+
+  <filter id="anima-glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <radialGradient id="anima-bg" cx="50%" cy="60%" r="55%">
+    <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.15"/>
+    <stop offset="100%" stop-color="#1a3060" stop-opacity="0.08"/>
+  </radialGradient>
+  <radialGradient id="puer-bg" cx="50%" cy="45%" r="55%">
+    <stop offset="0%" stop-color="#c87040" stop-opacity="0.14"/>
+    <stop offset="100%" stop-color="#0a0a0f" stop-opacity="0"/>
+  </radialGradient>
+
+  <clipPath id="valley-clip"><circle cx="0" cy="0" r="94"/></clipPath>
+</defs>
+
+<rect width="1000" height="720" fill="url(#bg)" rx="3"/>
+
+<!-- VALLEY -->
+<g transform="translate(500,355)">
+  <circle r="95" fill="url(#vf)" stroke="#4a7c6a" stroke-width="1.6" opacity=".9"/>
+  <g clip-path="url(#valley-clip)">
+
+  <!-- sky — atmospheric wash behind mountains, stays soft -->
+  <ellipse cx="0" cy="-35" rx="80" ry="45" fill="#1a3040" opacity=".4" filter="url(#atmo)"/>
+
+  <!-- mountains — replaced polygons with layered path fills for soft silhouettes -->
+  <!-- far mountains: lightest, most hazy — atmospheric perspective -->
+  <path d="M-80,-20 Q-58,-44 -38,-20Z" fill="#1a2820" opacity=".45" filter="url(#atmo)"/>
+  <path d="M-20,-20 Q-2,-50 18,-20Z" fill="#1a2820" opacity=".42" filter="url(#atmo)"/>
+  <path d="M20,-20 Q46,-46 68,-20Z" fill="#1a2820" opacity=".4" filter="url(#atmo)"/>
+  <!-- mid mountains: slightly more solid -->
+  <path d="M-72,-20 Q-44,-62 -14,-20Z" fill="#1e2e24" opacity=".75"/>
+  <path d="M-42,-20 Q-16,-68 12,-20Z" fill="#1a2820" opacity=".82"/>
+  <path d="M12,-20 Q40,-66 70,-20Z" fill="#1e2e24" opacity=".75"/>
+  <!-- snow caps: not flat fills — layered lighter washes, top-heavy -->
+  <path d="M-44,-62 Q-38,-70 -32,-58 Q-36,-54 -44,-62Z" fill="#c8d8d0" opacity=".55" filter="url(#atmo)"/>
+  <path d="M-44,-58 Q-38,-52 -34,-56 Q-38,-62 -44,-58Z" fill="#dce8e4" opacity=".35" filter="url(#atmo)"/>
+  <path d="M-16,-68 Q-10,-76 -4,-62 Q-10,-58 -16,-68Z" fill="#c8d8d0" opacity=".6" filter="url(#atmo)"/>
+  <path d="M-16,-62 Q-10,-56 -6,-60 Q-10,-66 -16,-62Z" fill="#dce8e4" opacity=".38" filter="url(#atmo)"/>
+  <path d="M40,-66 Q46,-74 52,-60 Q46,-56 40,-66Z" fill="#c8d8d0" opacity=".55" filter="url(#atmo)"/>
+  <path d="M40,-60 Q46,-54 50,-58 Q46,-64 40,-60Z" fill="#dce8e4" opacity=".35" filter="url(#atmo)"/>
+
+  <!-- rolling hills — layered strokes at different widths/opacities, rounded caps -->
+  <path d="M-90,20 Q-60,5 -30,15 Q0,5 30,13 Q58,4 90,18" fill="none" stroke="#3a6a4a" stroke-width="3.5" opacity=".18" stroke-linecap="round"/>
+  <path d="M-90,20 Q-60,5 -30,15 Q0,5 30,13 Q58,4 90,18" fill="none" stroke="#2d5a42" stroke-width="1.6" opacity=".45" stroke-linecap="round"/>
+  <path d="M-90,20 Q-60,6 -30,16 Q0,6 30,14 Q58,5 90,18" fill="none" stroke="#4a7c5a" stroke-width="0.6" opacity=".2" stroke-linecap="round"/>
+  <path d="M-90,32 Q-55,18 -20,28 Q10,18 45,26 Q65,18 90,30" fill="none" stroke="#2d5a42" stroke-width="2.5" opacity=".14" stroke-linecap="round"/>
+  <path d="M-90,32 Q-55,18 -20,28 Q10,18 45,26 Q65,18 90,30" fill="none" stroke="#2d5a42" stroke-width="0.9" opacity=".32" stroke-linecap="round"/>
+
+  <!-- grass — layered short strokes with round caps, varied opacity -->
+  <line x1="-60" y1="50" x2="-58" y2="38" stroke="#4a7a52" stroke-width="1.8" opacity=".18" stroke-linecap="round"/>
+  <line x1="-60" y1="50" x2="-58" y2="38" stroke="#3a6a4a" stroke-width="0.8" opacity=".38" stroke-linecap="round"/>
+  <line x1="-54" y1="52" x2="-53" y2="40" stroke="#4a7a52" stroke-width="1.6" opacity=".15" stroke-linecap="round"/>
+  <line x1="-54" y1="52" x2="-53" y2="40" stroke="#3a6a4a" stroke-width="0.7" opacity=".32" stroke-linecap="round"/>
+  <line x1="-48" y1="50" x2="-47" y2="39" stroke="#4a7a52" stroke-width="1.8" opacity=".18" stroke-linecap="round"/>
+  <line x1="-48" y1="50" x2="-47" y2="39" stroke="#3a6a4a" stroke-width="0.8" opacity=".38" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="51" y2="38" stroke="#4a7a52" stroke-width="1.8" opacity=".18" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="51" y2="38" stroke="#3a6a4a" stroke-width="0.8" opacity=".38" stroke-linecap="round"/>
+  <line x1="56" y1="52" x2="57" y2="40" stroke="#4a7a52" stroke-width="1.6" opacity=".15" stroke-linecap="round"/>
+  <line x1="56" y1="52" x2="57" y2="40" stroke="#3a6a4a" stroke-width="0.7" opacity=".32" stroke-linecap="round"/>
+
+  <!-- foreground grass — animated, layered -->
+  <path d="M-30,65 Q-28,52 -26,48" stroke="#4a7a52" stroke-width="2.5" fill="none" opacity=".16" stroke-linecap="round">
+    <animate attributeName="d" values="M-30,65 Q-28,52 -26,48;M-30,65 Q-25,52 -22,47;M-30,65 Q-28,52 -26,48" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-30,65 Q-28,52 -26,48" stroke="#3a6a44" stroke-width="1" fill="none" opacity=".5" stroke-linecap="round">
+    <animate attributeName="d" values="M-30,65 Q-28,52 -26,48;M-30,65 Q-25,52 -22,47;M-30,65 Q-28,52 -26,48" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-20,66 Q-19,54 -18,50" stroke="#4a7a52" stroke-width="2" fill="none" opacity=".14" stroke-linecap="round">
+    <animate attributeName="d" values="M-20,66 Q-19,54 -18,50;M-20,66 Q-16,53 -14,49;M-20,66 Q-19,54 -18,50" dur="3s" begin="-.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-20,66 Q-19,54 -18,50" stroke="#3a6a44" stroke-width="0.9" fill="none" opacity=".42" stroke-linecap="round">
+    <animate attributeName="d" values="M-20,66 Q-19,54 -18,50;M-20,66 Q-16,53 -14,49;M-20,66 Q-19,54 -18,50" dur="3s" begin="-.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M20,65 Q21,53 22,49" stroke="#4a7a52" stroke-width="2.5" fill="none" opacity=".16" stroke-linecap="round">
+    <animate attributeName="d" values="M20,65 Q21,53 22,49;M20,65 Q24,53 26,48;M20,65 Q21,53 22,49" dur="3.5s" begin="-1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M20,65 Q21,53 22,49" stroke="#3a6a44" stroke-width="1" fill="none" opacity=".5" stroke-linecap="round">
+    <animate attributeName="d" values="M20,65 Q21,53 22,49;M20,65 Q24,53 26,48;M20,65 Q21,53 22,49" dur="3.5s" begin="-1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M30,66 Q31,54 32,50" stroke="#4a7a52" stroke-width="2" fill="none" opacity=".13" stroke-linecap="round">
+    <animate attributeName="d" values="M30,66 Q31,54 32,50;M30,66 Q34,53 36,49;M30,66 Q31,54 32,50" dur="3.5s" begin="-1.8s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M30,66 Q31,54 32,50" stroke="#3a6a44" stroke-width="0.8" fill="none" opacity=".38" stroke-linecap="round">
+    <animate attributeName="d" values="M30,66 Q31,54 32,50;M30,66 Q34,53 36,49;M30,66 Q31,54 32,50" dur="3.5s" begin="-1.8s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+
+  <!-- RIVER — the key fix: 4 layered strokes on same path, widest at back, narrowest on top -->
+  <!-- Layer 1: wide soft shadow/body — darkest water colour -->
+  <path d="M55,-30 Q40,0 20,20 Q0,35 -30,65" fill="none" stroke="#2a5070" stroke-width="7" opacity=".18" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Layer 2: main water body -->
+  <path d="M55,-30 Q40,0 20,20 Q0,35 -30,65" fill="none" stroke="#4a7a9a" stroke-width="4" opacity=".3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Layer 3: mid tone — slightly offset, gives painterly variation -->
+  <path d="M54,-29 Q39,1 19,21 Q-1,36 -31,65" fill="none" stroke="#5a8aaa" stroke-width="2" opacity=".22" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Layer 4: surface shimmer — lightest, animated -->
+  <path d="M55,-30 Q40,0 20,20 Q0,35 -30,65" fill="none" stroke="#9ac8e0" stroke-width="0.9" opacity=".22" stroke-linecap="round">
+    <animate attributeName="opacity" values=".22;.42;.12;.32;.22" dur="4s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- willows — trunks: layered for soft bark quality, not a single hard line -->
+  <!-- willow 1 -->
+  <line x1="18" y1="22" x2="18" y2="6" stroke="#3a6a48" stroke-width="3" opacity=".2" stroke-linecap="round"/>
+  <line x1="18" y1="22" x2="18" y2="6" stroke="#2d5a38" stroke-width="1.3" opacity=".58" stroke-linecap="round"/>
+  <ellipse cx="18" cy="7" rx="7" ry="4" fill="#2d5a38" opacity=".2" filter="url(#atmo)"/>
+  <!-- fronds: rounded caps, layered opacity -->
+  <path d="M18,10 Q24,16 22,24" stroke="#3a6a44" stroke-width="2.2" fill="none" opacity=".2" stroke-linecap="round">
+    <animate attributeName="d" values="M18,10 Q24,16 22,24;M18,10 Q26,15 25,24;M18,10 Q24,16 22,24" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M18,10 Q24,16 22,24" stroke="#3a6a44" stroke-width="0.8" fill="none" opacity=".48" stroke-linecap="round">
+    <animate attributeName="d" values="M18,10 Q24,16 22,24;M18,10 Q26,15 25,24;M18,10 Q24,16 22,24" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M18,8 Q12,14 14,22" stroke="#3a6a44" stroke-width="2" fill="none" opacity=".18" stroke-linecap="round">
+    <animate attributeName="d" values="M18,8 Q12,14 14,22;M18,8 Q14,13 17,22;M18,8 Q12,14 14,22" dur="4s" begin="-.7s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M18,8 Q12,14 14,22" stroke="#3a6a44" stroke-width="0.8" fill="none" opacity=".42" stroke-linecap="round">
+    <animate attributeName="d" values="M18,8 Q12,14 14,22;M18,8 Q14,13 17,22;M18,8 Q12,14 14,22" dur="4s" begin="-.7s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <!-- willow 2 -->
+  <line x1="-4" y1="38" x2="-4" y2="24" stroke="#3a6a48" stroke-width="2.5" opacity=".18" stroke-linecap="round"/>
+  <line x1="-4" y1="38" x2="-4" y2="24" stroke="#2d5a38" stroke-width="1.1" opacity=".48" stroke-linecap="round"/>
+  <ellipse cx="-4" cy="25" rx="6" ry="3.5" fill="#2d5a38" opacity=".16" filter="url(#atmo)"/>
+  <path d="M-4,28 Q2,34 0,42" stroke="#3a6a44" stroke-width="2" fill="none" opacity=".18" stroke-linecap="round">
+    <animate attributeName="d" values="M-4,28 Q2,34 0,42;M-4,28 Q4,33 3,42;M-4,28 Q2,34 0,42" dur="4.5s" begin="-.3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-4,28 Q2,34 0,42" stroke="#3a6a44" stroke-width="0.7" fill="none" opacity=".4" stroke-linecap="round">
+    <animate attributeName="d" values="M-4,28 Q2,34 0,42;M-4,28 Q4,33 3,42;M-4,28 Q2,34 0,42" dur="4.5s" begin="-.3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-4,26 Q-10,32 -8,40" stroke="#3a6a44" stroke-width="1.8" fill="none" opacity=".16" stroke-linecap="round">
+    <animate attributeName="d" values="M-4,26 Q-10,32 -8,40;M-4,26 Q-8,31 -5,40;M-4,26 Q-10,32 -8,40" dur="4.5s" begin="-1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-4,26 Q-10,32 -8,40" stroke="#3a6a44" stroke-width="0.7" fill="none" opacity=".34" stroke-linecap="round">
+    <animate attributeName="d" values="M-4,26 Q-10,32 -8,40;M-4,26 Q-8,31 -5,40;M-4,26 Q-10,32 -8,40" dur="4.5s" begin="-1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+
+  <!-- wind swirl — layered for depth -->
+  <path d="M-70,0 Q-50,-15 -20,-5 Q10,5 30,-8 Q55,-20 70,-5" fill="none" stroke="#6a9a7a" stroke-width="2.5" opacity=".06" stroke-linecap="round">
+    <animate attributeName="opacity" values=".06;.12;.04;.09;.06" dur="6s" repeatCount="indefinite"/>
+    <animate attributeName="d" values="M-70,0 Q-50,-15 -20,-5 Q10,5 30,-8 Q55,-20 70,-5;M-70,2 Q-48,-14 -18,-3 Q12,6 32,-7 Q56,-19 70,-3;M-70,0 Q-50,-15 -20,-5 Q10,5 30,-8 Q55,-20 70,-5" dur="6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-70,0 Q-50,-15 -20,-5 Q10,5 30,-8 Q55,-20 70,-5" fill="none" stroke="#6a9a7a" stroke-width="0.6" opacity=".15" stroke-linecap="round">
+    <animate attributeName="opacity" values=".15;.28;.1;.22;.15" dur="6s" repeatCount="indefinite"/>
+    <animate attributeName="d" values="M-70,0 Q-50,-15 -20,-5 Q10,5 30,-8 Q55,-20 70,-5;M-70,2 Q-48,-14 -18,-3 Q12,6 32,-7 Q56,-19 70,-3;M-70,0 Q-50,-15 -20,-5 Q10,5 30,-8 Q55,-20 70,-5" dur="6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+
+  </g>
+  <text text-anchor="middle" y="-68" font-size="10" fill="#4a7c6a" font-family="Cinzel,serif" letter-spacing="2" opacity=".7">THE VALLEY</text>
+  <text text-anchor="middle" y="-56" font-size="8" fill="#a0c0b0" opacity=".6" font-style="italic" font-family="Cormorant Garamond,serif">the true interior self</text>
+  <text text-anchor="middle" y="78" font-size="7" fill="#c9a84c" opacity=".4" font-style="italic" font-family="Cormorant Garamond,serif">pure · precise · resonant · graceful · luminous</text>
+</g>
+
+<!-- THE CHANNEL -->
+<line x1="500" y1="18" x2="500" y2="260" stroke="#c9a84c" stroke-width="2.5" opacity=".28"/>
+<line x1="500" y1="450" x2="500" y2="605" stroke="#4a8a6a" stroke-width="2.5" opacity=".22"/>
+<text x="508" y="44" font-size="8" fill="#c9a84c" opacity=".45" font-style="italic" font-family="Cormorant Garamond,serif">the channel</text>
+
+<!-- SPHERE ring — centred on Valley -->
+<circle cx="500" cy="355" r="120" fill="none" stroke="#6b1fa0" stroke-width="2" opacity=".35" stroke-dasharray="7 5" class="sp-pulse"/>
+
+<!-- RELATIONSHIP LINES — all endpoints calculated to node boundaries -->
+<!-- Wound → Sphere (created) -->
+<line x1="151" y1="553" x2="396" y2="414" stroke="#8b3a3a" stroke-width="1.6" opacity=".6" marker-end="url(#ar)"/>
+<!-- Sphere blocks Anima -->
+<line x1="392" y1="303" x2="213" y2="216" stroke="#6b1fa0" stroke-width="1.2" stroke-dasharray="5 4" opacity=".55" marker-end="url(#ap)"/>
+<!-- Sphere blocks Puer -->
+<line x1="608" y1="303" x2="796" y2="212" stroke="#6b1fa0" stroke-width="1.2" stroke-dasharray="5 4" opacity=".55" marker-end="url(#ap)"/>
+<!-- Anima feeds Valley -->
+<line x1="213" y1="216" x2="415" y2="314" stroke="#c9a84c" stroke-width="1.8" opacity=".7" marker-end="url(#ag)"/>
+<!-- Puer feeds Valley -->
+<line x1="796" y1="212" x2="585" y2="314" stroke="#c87040" stroke-width="1.5" opacity=".6" marker-end="url(#ad)"/>
+<!-- Senex ↔ Puer (counterpart arc) -->
+<path d="M838,426 Q900,310 831,233" stroke="#8a8070" stroke-width="1.1" stroke-dasharray="3 4" opacity=".4" fill="none" marker-end="url(#ad)"/>
+<!-- Senex → Valley -->
+<line x1="798" y1="456" x2="590" y2="385" stroke="#8a7a50" stroke-width="1.1" stroke-dasharray="4 4" opacity=".38" marker-end="url(#ad)"/>
+<!-- Witch → Valley -->
+<line x1="189" y1="439" x2="408" y2="380" stroke="#6b8cb0" stroke-width="1.3" opacity=".55" marker-end="url(#ad)"/>
+<!-- Witch observes/contains Sphere — wide arc from outside -->
+<path d="M148,414 Q200,332 390,302" stroke="#6b8cb0" stroke-width="1" stroke-dasharray="2 4" opacity=".38" fill="none" marker-end="url(#ad)"/>
+<text x="278" y="348" font-size="7" fill="#6b8cb0" opacity=".4" font-style="italic" font-family="Cormorant Garamond,serif" transform="rotate(-22,278,348)">observes · contains</text>
+<!-- Witch ↔ Triple Goddess (shared sacred language) -->
+<path d="M172,420 Q200,320 440,130" stroke="#8b7bb0" stroke-width="0.9" stroke-dasharray="3 3" opacity=".38" fill="none" marker-end="url(#ad)"/>
+<text x="290" y="278" font-size="7" fill="#8b7bb0" opacity=".38" font-style="italic" font-family="Cormorant Garamond,serif" transform="rotate(-52,290,278)">shared sacred language</text>
+<!-- Witch ↔ Quiet Healer (private channel) -->
+<path d="M180,455" stroke="#7a9a8a" stroke-width="0.9" stroke-dasharray="2 3" opacity=".35" fill="none"/>
+<path d="M182,457 Q300,560 472,620" stroke="#7a9a8a" stroke-width="0.9" stroke-dasharray="2 3" opacity=".35" fill="none" marker-end="url(#ah)"/>
+<text x="328" y="558" font-size="7" fill="#7a9a8a" opacity=".35" font-style="italic" font-family="Cormorant Garamond,serif" transform="rotate(22,328,558)">private channel</text>
+<!-- Triple Goddess → Valley (through channel) -->
+<line x1="500" y1="130" x2="500" y2="260" stroke="#8b7bb0" stroke-width="1.3" opacity=".55" marker-end="url(#ad)"/>
+<!-- Vessel transmits outward -->
+<path d="M760,350 Q860,335 960,322" stroke="#4a8a6a" stroke-width="1.8" fill="none" opacity=".65" marker-end="url(#at)"/>
+<!-- Healer quiet influence upward to Valley -->
+<line x1="500" y1="605" x2="500" y2="450" stroke="#7a9a8a" stroke-width="1" stroke-dasharray="2 4" opacity=".45" marker-end="url(#ah)"/>
+<!-- Quiet Healer → Puer (protective companion — keeps him company in the void) -->
+<path d="M528,607 Q720,540 796,233" stroke="#4a8a6a" stroke-width="1.1" stroke-dasharray="3 4" opacity=".42" fill="none" marker-end="url(#ah)"/>
+<!-- Quiet Healer → Anima (collaborative — creates conditions for private flow) -->
+<path d="M472,607 Q280,540 186,243" stroke="#4a8a6a" stroke-width="1.1" stroke-dasharray="3 4" opacity=".38" fill="none" marker-end="url(#ah)"/>
+<!-- QH relationship labels -->
+<text x="686" y="466" font-size="7" fill="#4a8a6a" opacity=".5" font-style="italic" font-family="Cormorant Garamond,serif" transform="rotate(-58,686,466)">shields · companions</text>
+<text x="302" y="488" font-size="7" fill="#4a8a6a" opacity=".45" font-style="italic" font-family="Cormorant Garamond,serif" transform="rotate(52,302,488)">opens space · privately</text>
+<!-- Pixie tether from sphere -->
+<line x1="321" y1="278" x2="390" y2="308" stroke="#9a3a8a" stroke-width="1.1" stroke-dasharray="3 3" opacity=".6" marker-end="url(#apx)"/>
+<!-- Anima → Vessel (deep alignment — when Anima flows, Vessel functions) -->
+<path d="M213,229 Q340,310 686,348" stroke="#c9a84c" stroke-width="1" stroke-dasharray="4 3" opacity=".35" fill="none" marker-end="url(#ag)"/>
+<!-- Anima ↔ Pixie (mirror relationship — opposite conditions, near each other) -->
+<path d="M216,218 Q248,238 263,252" stroke="#9a3a8a" stroke-width="0.9" stroke-dasharray="2 3" opacity=".4" fill="none" marker-end="url(#apx)"/>
+
+<!-- sphere + pixie labels -->
+<text x="340" y="356" font-size="8" fill="#6b1fa0" opacity=".65" font-family="Cinzel,serif" letter-spacing="1">THE SPHERE</text>
+<text x="340" y="368" font-size="7" fill="#6b1fa0" opacity=".4" font-style="italic" font-family="Cormorant Garamond,serif">encircles · intercepts · blocks</text>
+<text x="295" y="296" font-size="7.5" fill="#9a3a8a" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif">emissary</text>
+<text x="630" y="335" font-size="7" fill="#4a8a6a" opacity=".5" font-style="italic" font-family="Cormorant Garamond,serif">the world →</text>
+
+<!-- ===== NODES ===== -->
+<!-- Node sizes reflect depth of knowledge + influence:
+     Valley 95 · Anima 48 · Senex 44 · Goddess 42 · Witch 42 · Vessel 40
+     Wound 38 · Puer 38 · Pixie 34 · Healer 30 -->
+
+<!-- TRIPLE GODDESS — r42, top centre -->
+<g transform="translate(500,88)" filter="url(#sf)">
+  <circle r="42" fill="rgba(139,123,176,.12)" stroke="#8b7bb0" stroke-width="1.6" opacity=".9"/>
+  <path d="M-20,-26 A8,8 0 1,1 -20,-10 A5,5 0 1,0 -20,-26Z" fill="#8b7bb0" opacity=".6"/>
+  <circle cx="0" cy="-20" r="8" fill="none" stroke="#8b7bb0" stroke-width="1.4" opacity=".85"/>
+  <circle cx="0" cy="-20" r="5" fill="#8b7bb0" opacity=".2">
+    <animate attributeName="opacity" values=".2;.38;.14;.28;.2" dur="5s" repeatCount="indefinite"/>
+  </circle>
+  <path d="M20,-26 A8,8 0 1,0 20,-10 A5,5 0 1,1 20,-26Z" fill="#8b7bb0" opacity=".6"/>
+  <path d="M-3,8 Q0,12 3,8 Q2,5 0,4 Q-2,5 -3,8Z" fill="#8b7bb0" opacity=".3"/>
+  <ellipse cx="0" cy="-1" rx="5.5" ry="6.5" fill="#8b7bb0" opacity=".2"/>
+  <ellipse cx="-2.2" cy="-2.5" rx="1.4" ry="1" fill="#8b7bb0" opacity=".8"/>
+  <ellipse cx="2.2" cy="-2.5" rx="1.4" ry="1" fill="#8b7bb0" opacity=".8"/>
+  <circle cx="-2.2" cy="-2.5" r="0.55" fill="#e0d8f0" opacity=".9"/>
+  <circle cx="2.2" cy="-2.5" r="0.55" fill="#e0d8f0" opacity=".9"/>
+  <circle cx="-1.9" cy="-2.8" r="0.18" fill="white" opacity=".8"/>
+  <circle cx="2.5" cy="-2.8" r="0.18" fill="white" opacity=".8"/>
+  <path d="M-1.8,2 Q0,3.2 1.8,2" stroke="#8b7bb0" stroke-width="0.6" fill="none" opacity=".5" stroke-linecap="round"/>
+  <ellipse cx="-10" cy="-1" rx="4" ry="5" fill="#8b7bb0" opacity=".13" transform="rotate(-15,-10,-1)"/>
+  <ellipse cx="-12.5" cy="-2.5" rx="1.1" ry="0.85" fill="#8b7bb0" opacity=".6"/>
+  <circle cx="-12.5" cy="-2.5" r="0.45" fill="#e0d8f0" opacity=".7"/>
+  <!-- maiden hair — layered strokes, rounded -->
+  <path d="M-13,-8 Q-18,-5 -20,0 Q-18,4 -16,6" stroke="#8b7bb0" stroke-width="3" fill="none" opacity=".1" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M-13,-8 Q-18,-5 -20,0 Q-18,4 -16,6" stroke="#8b7bb0" stroke-width="1.3" fill="none" opacity=".28" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="10" cy="-1" rx="4" ry="5" fill="#8b7bb0" opacity=".13" transform="rotate(15,10,-1)"/>
+  <ellipse cx="12.5" cy="-2.5" rx="1.1" ry="0.75" fill="#8b7bb0" opacity=".6"/>
+  <circle cx="12.5" cy="-2.5" r="0.45" fill="#e0d8f0" opacity=".7"/>
+  <!-- crone hair — drawn back, layered -->
+  <path d="M13,-8 Q18,-5 20,0 Q18,4 16,6" stroke="#8b7bb0" stroke-width="2.5" fill="none" opacity=".08" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13,-8 Q18,-5 20,0 Q18,4 16,6" stroke="#8b7bb0" stroke-width="1" fill="none" opacity=".23" stroke-linecap="round" stroke-linejoin="round"/>
+  <text text-anchor="middle" y="24" font-size="9.5" fill="#8b7bb0" font-family="Cinzel,serif" letter-spacing="1.5">TRIPLE</text>
+  <text text-anchor="middle" y="35" font-size="9.5" fill="#8b7bb0" font-family="Cinzel,serif" letter-spacing="1.5">GODDESS</text>
+  <text text-anchor="middle" y="44" font-size="8" fill="#8b7bb0" opacity=".65" font-style="italic" font-family="Cormorant Garamond,serif">maiden · parent · crone</text>
+</g>
+
+<!-- ANIMA -->
+<g transform="translate(170,195)" filter="url(#anima-glow)">
+  <circle r="48" fill="url(#anima-bg)" stroke="#c9a84c" stroke-width="1.3" opacity=".85"/>
+  <path d="M-8,14 Q-22,4 -20,-10" fill="none" stroke="#c9a84c" stroke-width="0.7" opacity=".22" class="anima-ripple" stroke-linecap="round"/>
+  <path d="M-4,18 Q-30,6 -28,-14" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity=".14" class="anima-ripple" style="animation-delay:-.6s" stroke-linecap="round"/>
+  <path d="M10,16 Q24,4 22,-10" fill="none" stroke="#c9a84c" stroke-width="0.7" opacity=".22" class="anima-ripple" style="animation-delay:-1.2s" stroke-linecap="round"/>
+  <path d="M14,20 Q32,6 30,-14" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity=".14" class="anima-ripple" style="animation-delay:-1.8s" stroke-linecap="round"/>
+  <ellipse cx="2" cy="4" rx="36" ry="28" fill="none" stroke="#c9a84c" stroke-width="0.4" opacity=".1" class="anima-ripple" style="animation-delay:-.4s"/>
+  <g class="anima-figure">
+    <animateTransform attributeName="transform" type="translate" values="0,0; 0,-3; 0,1; 0,-2; 0,0" keyTimes="0;0.25;0.5;0.75;1" dur="6s" repeatCount="indefinite" additive="sum"/>
+    <animateTransform attributeName="transform" type="rotate" values="0; 1; -0.5; 0.8; 0" keyTimes="0;0.3;0.55;0.8;1" dur="6s" repeatCount="indefinite" additive="sum"/>
+    <path d="M-2,14 Q-14,8 -18,-2 Q-10,-4 -4,2 Q0,-2 4,2 Q8,-2 14,6 Q10,14 -2,14Z" fill="#e8d5a3" opacity=".13"/>
+    <path d="M-4,6 Q-20,-4 -28,-16 Q-22,-12 -14,-2 Q-10,2 -6,8" fill="#e8d5a3" opacity=".07"/>
+    <path d="M6,8 Q22,-2 30,-18 Q24,-10 16,0 Q10,4 8,10" fill="#e8d5a3" opacity=".06"/>
+    <!-- torso — layered strokes, rounded -->
+    <path d="M-3,2 Q-1,-8 2,-14" stroke="#e8d5a3" stroke-width="3" fill="none" opacity=".07" stroke-linecap="round"/>
+    <path d="M-3,2 Q-1,-8 2,-14" stroke="#e8d5a3" stroke-width="1.1" fill="none" opacity=".22" stroke-linecap="round"/>
+    <circle cx="3" cy="-17" r="3" fill="#e8d5a3" opacity=".16"/>
+    <path d="M1,-20 Q4,-24 8,-22 Q6,-19 3,-17" fill="#e8d5a3" opacity=".09"/>
+    <!-- conducting arm — layered -->
+    <path d="M4,-10 Q12,-16 18,-20" stroke="#e8d5a3" stroke-width="3" fill="none" opacity=".07" stroke-linecap="round"/>
+    <path d="M4,-10 Q12,-16 18,-20" stroke="#e8d5a3" stroke-width="1.1" fill="none" opacity=".25" stroke-linecap="round"/>
+    <circle cx="18" cy="-20" r="1.4" fill="#c9a84c" opacity=".3"/>
+    <!-- flowing arm — layered -->
+    <path d="M-2,-8 Q-10,-6 -16,-2" stroke="#e8d5a3" stroke-width="2.5" fill="none" opacity=".06" stroke-linecap="round"/>
+    <path d="M-2,-8 Q-10,-6 -16,-2" stroke="#e8d5a3" stroke-width="0.9" fill="none" opacity=".18" stroke-linecap="round"/>
+    <!-- leg — layered -->
+    <path d="M2,10 Q10,4 16,-2" stroke="#e8d5a3" stroke-width="2.5" fill="none" opacity=".06" stroke-linecap="round"/>
+    <path d="M2,10 Q10,4 16,-2" stroke="#e8d5a3" stroke-width="0.9" fill="none" opacity=".18" stroke-linecap="round"/>
+    <path d="M-1,14 Q-2,20 -1,24" stroke="#e8d5a3" stroke-width="0.7" fill="none" opacity=".12" stroke-linecap="round"/>
+  </g>
+  <ellipse cx="0" cy="26" rx="22" ry="2.5" fill="none" stroke="#6baed6" stroke-width="0.8" opacity=".2" class="anima-ripple" style="animation-delay:-.9s"/>
+  <ellipse cx="0" cy="26" rx="32" ry="3.5" fill="none" stroke="#6baed6" stroke-width="0.5" opacity=".12" class="anima-ripple" style="animation-delay:-1.5s"/>
+  <text text-anchor="middle" y="38" font-size="10.5" fill="#c9a84c" font-family="Cinzel,serif" letter-spacing="1.5">ANIMA</text>
+  <text text-anchor="middle" y="49" font-size="8.5" fill="#c9a84c" opacity=".65" font-style="italic" font-family="Cormorant Garamond,serif">music · dance · ocean</text>
+</g>
+
+<!-- PUER — fully personified: small sprite/fae child, blonde curls, pure radiance, undefended -->
+<g transform="translate(830,195)">
+  <circle r="38" fill="url(#puer-bg)" stroke="#c87040" stroke-width="1.3" opacity=".85"/>
+  <!-- ambient outer glow — warm golden light, effortless -->
+  <circle cx="0" cy="0" r="38" fill="none" stroke="#f0d060" stroke-width="4" opacity=".07"/>
+
+  <g class="puer-form">
+
+    <!-- BODY — small, light, sprite proportions — head slightly large, limbs slight -->
+    <!-- soft underlayer for depth -->
+    <path d="M-4,22 Q-5,12 -4,4 Q-2,-2 0,-4 Q2,-2 4,4 Q5,12 4,22Z" fill="#f0c860" opacity=".15" filter="url(#atmo)"/>
+    <!-- tunic/clothing — simple, light fabric, glowing gold-cream -->
+    <path d="M-4,22 Q-5,12 -4,4 Q-2,-2 0,-4 Q2,-2 4,4 Q5,12 4,22Z" fill="#f8e090" opacity=".2"/>
+    <!-- torso — slight, childlike -->
+    <path d="M-3,4 Q0,-2 3,4" stroke="#f0c860" stroke-width="2.5" fill="none" opacity=".18" stroke-linecap="round"/>
+    <path d="M-3,4 Q0,-2 3,4" stroke="#f8e8b0" stroke-width="0.9" fill="none" opacity=".35" stroke-linecap="round"/>
+
+    <!-- HEAD — round, sprite proportions, slightly upturned face -->
+    <circle cx="0" cy="-14" r="7" fill="#f0c870" opacity=".18" filter="url(#atmo)"/>
+    <circle cx="0" cy="-14" r="6" fill="#f8e090" opacity=".22"/>
+    <!-- face: soft, innocent, open — no shadows here -->
+    <!-- eyes: wide, clear, genuinely delighted -->
+    <ellipse cx="-2.8" cy="-15" rx="1.6" ry="1.8" fill="#7a5010" opacity=".65"/>
+    <ellipse cx="2.8" cy="-15" rx="1.6" ry="1.8" fill="#7a5010" opacity=".65"/>
+    <circle cx="-2.8" cy="-15" r="0.8" fill="#c08030" opacity=".7"/>
+    <circle cx="2.8" cy="-15" r="0.8" fill="#c08030" opacity=".7"/>
+    <!-- catch lights — wide, curious -->
+    <circle cx="-2.2" cy="-15.6" r="0.32" fill="white" opacity=".9"/>
+    <circle cx="3.4" cy="-15.6" r="0.32" fill="white" opacity=".9"/>
+    <!-- smile: genuine, easy, unguarded — this is the child before the sphere found him -->
+    <path d="M-2.5,-11.5 Q0,-10 2.5,-11.5" stroke="#c07830" stroke-width="2" fill="none" opacity=".18" stroke-linecap="round"/>
+    <path d="M-2.5,-11.5 Q0,-10 2.5,-11.5" stroke="#8a4010" stroke-width="0.7" fill="none" opacity=".5" stroke-linecap="round"/>
+
+    <!-- HAIR — blonde curls, wild and soft, catching light -->
+    <!-- main mass, warm gold -->
+    <ellipse cx="0" cy="-20" rx="8" ry="5" fill="#f8d840" opacity=".25" filter="url(#atmo)"/>
+    <!-- individual curls — rounded, springy, no hard edges -->
+    <path d="M-6,-17 Q-10,-20 -8,-24 Q-6,-22 -7,-18" stroke="#f0d040" stroke-width="3" fill="none" opacity=".2" stroke-linecap="round"/>
+    <path d="M-6,-17 Q-10,-20 -8,-24 Q-6,-22 -7,-18" stroke="#f8e860" stroke-width="1" fill="none" opacity=".5" stroke-linecap="round"/>
+    <path d="M-2,-19 Q-3,-24 0,-26 Q2,-23 0,-20" stroke="#f0d040" stroke-width="2.5" fill="none" opacity=".18" stroke-linecap="round"/>
+    <path d="M-2,-19 Q-3,-24 0,-26 Q2,-23 0,-20" stroke="#f8e860" stroke-width="0.9" fill="none" opacity=".45" stroke-linecap="round"/>
+    <path d="M4,-18 Q8,-21 7,-25 Q5,-22 5,-18" stroke="#f0d040" stroke-width="2.5" fill="none" opacity=".18" stroke-linecap="round"/>
+    <path d="M4,-18 Q8,-21 7,-25 Q5,-22 5,-18" stroke="#f8e860" stroke-width="0.9" fill="none" opacity=".42" stroke-linecap="round"/>
+    <!-- side curls falling loose -->
+    <path d="M-7,-16 Q-10,-13 -9,-10" stroke="#f0d040" stroke-width="2" fill="none" opacity=".15" stroke-linecap="round"/>
+    <path d="M-7,-16 Q-10,-13 -9,-10" stroke="#f8e060" stroke-width="0.7" fill="none" opacity=".38" stroke-linecap="round"/>
+    <path d="M7,-16 Q10,-13 9,-10" stroke="#f0d040" stroke-width="2" fill="none" opacity=".15" stroke-linecap="round"/>
+    <path d="M7,-16 Q10,-13 9,-10" stroke="#f8e060" stroke-width="0.7" fill="none" opacity=".35" stroke-linecap="round"/>
+
+    <!-- ARMS — small sprite arms, reaching upward and wide — the whole vision gesture -->
+    <!-- but softer than before, more childlike wonder than desperate reaching -->
+    <path d="M-4,4 Q-12,0 -18,-8" stroke="#f0c860" stroke-width="3.5" fill="none" opacity=".16" stroke-linecap="round"/>
+    <path d="M-4,4 Q-12,0 -18,-8" stroke="#f8e090" stroke-width="1.2" fill="none" opacity=".38" stroke-linecap="round"/>
+    <path d="M4,4 Q12,0 18,-8" stroke="#f0c860" stroke-width="3.5" fill="none" opacity=".16" stroke-linecap="round"/>
+    <path d="M4,4 Q12,0 18,-8" stroke="#f8e090" stroke-width="1.2" fill="none" opacity=".38" stroke-linecap="round"/>
+    <!-- small hands — open, pointing at nothing specific, just wonder -->
+    <circle cx="-18" cy="-8" r="2" fill="#f8e090" opacity=".22"/>
+    <circle cx="18" cy="-8" r="2" fill="#f8e090" opacity=".22"/>
+
+    <!-- LEGS — small, sprite-light, barely touching ground -->
+    <path d="M-2,22 Q-3,28 -2,32" stroke="#f0c860" stroke-width="2.5" fill="none" opacity=".15" stroke-linecap="round"/>
+    <path d="M-2,22 Q-3,28 -2,32" stroke="#f8d880" stroke-width="0.8" fill="none" opacity=".32" stroke-linecap="round"/>
+    <path d="M2,22 Q3,28 2,32" stroke="#f0c860" stroke-width="2.5" fill="none" opacity=".15" stroke-linecap="round"/>
+    <path d="M2,22 Q3,28 2,32" stroke="#f8d880" stroke-width="0.8" fill="none" opacity=".3" stroke-linecap="round"/>
+
+  </g>
+
+  <!-- warm light emanating from him — radiant without effort, this is the Apollo quality -->
+  <circle cx="0" cy="-8" r="16" fill="#f8e860" opacity=".04" filter="url(#warm-glow)"/>
+
+  <!-- orbiting sparks — not unfinished projects so much as ideas he's already excited about -->
+  <circle cx="-26" cy="-14" r="1.5" fill="#f8e860" opacity=".45" class="puer-spark"/>
+  <circle cx="28" cy="-8" r="1.2" fill="#f8e060" opacity=".38" class="puer-spark" style="animation-delay:-.8s"/>
+  <circle cx="22" cy="18" r="1.4" fill="#f0d040" opacity=".32" class="puer-spark" style="animation-delay:-1.6s"/>
+  <circle cx="-24" cy="14" r="1.1" fill="#f8e860" opacity=".28" class="puer-spark" style="animation-delay:-2.4s"/>
+  <circle cx="4" cy="-32" r="1.8" fill="#fff8c0" opacity=".42" class="puer-spark" style="animation-delay:-.4s"/>
+
+  <text text-anchor="middle" y="25" font-size="10.5" fill="#c87040" font-family="Cinzel,serif" letter-spacing="1.5">PUER</text>
+  <text text-anchor="middle" y="36" font-size="8.5" fill="#c87040" opacity=".65" font-style="italic" font-family="Cormorant Garamond,serif">the child · the radiance</text>
+  <text text-anchor="middle" y="47" font-size="7.5" fill="#c87040" opacity=".45" font-style="italic" font-family="Cormorant Garamond,serif">revels in completion</text>
+</g>
+
+<!-- MANIC PIXIE — r34, sphere-adjacent left -->
+<g transform="translate(290,265)">
+  <circle r="34" fill="rgba(154,58,138,.1)" stroke="#9a3a8a" stroke-width="1.2" opacity=".85" stroke-dasharray="5 3"/>
+
+  <g class="pixie-drift">
+
+    <!-- WINGS — gossamer, iridescent, larger than her body, fragile and beautiful -->
+    <!-- upper left wing -->
+    <path d="M-2,-2 Q-18,-10 -22,-2 Q-18,6 -8,6 Q-4,4 -2,-2Z" fill="#e0a0d0" opacity=".12" filter="url(#atmo)"/>
+    <path d="M-2,-2 Q-18,-10 -22,-2 Q-18,6 -8,6 Q-4,4 -2,-2Z" fill="none" stroke="#c878b8" stroke-width="0.7" opacity=".35" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- wing vein, upper left -->
+    <path d="M-2,-2 Q-12,-8 -18,-3" stroke="#d090c0" stroke-width="0.4" fill="none" opacity=".3" stroke-linecap="round"/>
+    <!-- lower left wing — smaller, angled down -->
+    <path d="M-2,4 Q-14,10 -16,6 Q-12,2 -6,4 Q-4,5 -2,4Z" fill="#e0a0d0" opacity=".1" filter="url(#atmo)"/>
+    <path d="M-2,4 Q-14,10 -16,6 Q-12,2 -6,4 Q-4,5 -2,4Z" fill="none" stroke="#c878b8" stroke-width="0.6" opacity=".28" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- upper right wing — mirror -->
+    <path d="M2,-2 Q18,-10 22,-2 Q18,6 8,6 Q4,4 2,-2Z" fill="#e0a0d0" opacity=".12" filter="url(#atmo)"/>
+    <path d="M2,-2 Q18,-10 22,-2 Q18,6 8,6 Q4,4 2,-2Z" fill="none" stroke="#c878b8" stroke-width="0.7" opacity=".35" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M2,-2 Q12,-8 18,-3" stroke="#d090c0" stroke-width="0.4" fill="none" opacity=".3" stroke-linecap="round"/>
+    <!-- lower right wing -->
+    <path d="M2,4 Q14,10 16,6 Q12,2 6,4 Q4,5 2,4Z" fill="#e0a0d0" opacity=".1" filter="url(#atmo)"/>
+    <path d="M2,4 Q14,10 16,6 Q12,2 6,4 Q4,5 2,4Z" fill="none" stroke="#c878b8" stroke-width="0.6" opacity=".28" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- BODY — small, slight, dressed in light -->
+    <!-- dress/form: light fabric, brighter than you'd expect from anything near the sphere -->
+    <path d="M-3,14 Q-4,6 -3,0 Q-1,-4 1,-4 Q3,-4 3,0 Q4,6 3,14Z" fill="#e8b0d8" opacity=".2" filter="url(#atmo)"/>
+    <path d="M-3,14 Q-4,6 -3,0 Q-1,-4 1,-4 Q3,-4 3,0 Q4,6 3,14Z" fill="#f0c0e0" opacity=".16"/>
+    <!-- torso — slight -->
+    <path d="M-2,0 Q0,-6 2,0" stroke="#c878a8" stroke-width="2.5" fill="none" opacity=".15" stroke-linecap="round"/>
+    <path d="M-2,0 Q0,-6 2,0" stroke="#e8b0d8" stroke-width="0.8" fill="none" opacity=".35" stroke-linecap="round"/>
+
+    <!-- HEAD — sharp features, light colouring, tilted at a charming angle -->
+    <circle cx="0" cy="-12" r="5" fill="#e8c0d8" opacity=".18" filter="url(#atmo)"/>
+    <circle cx="0" cy="-12" r="4" fill="#f0d0e8" opacity=".22"/>
+    <!-- sharp cheekbones — the face has edges -->
+    <path d="M-4,-12 Q-5,-10 -3,-9" stroke="#c878a8" stroke-width="1" fill="none" opacity=".28" stroke-linecap="round"/>
+    <path d="M4,-12 Q5,-10 3,-9" stroke="#c878a8" stroke-width="1" fill="none" opacity=".28" stroke-linecap="round"/>
+    <!-- eyes — knowing, slightly too bright -->
+    <ellipse cx="-2" cy="-13" rx="1.3" ry="1" fill="#6a2060" opacity=".75"/>
+    <ellipse cx="2" cy="-13" rx="1.3" ry="1" fill="#6a2060" opacity=".75"/>
+    <circle cx="-2" cy="-13" r="0.55" fill="#c060a0" opacity=".8"/>
+    <circle cx="2" cy="-13" r="0.55" fill="#c060a0" opacity=".8"/>
+    <circle cx="-1.6" cy="-13.3" r="0.18" fill="white" opacity=".85"/>
+    <circle cx="2.4" cy="-13.3" r="0.18" fill="white" opacity=".85"/>
+    <!-- THE GRIN — sweet and cruel simultaneously, one corner slightly higher -->
+    <!-- wider than it should be, not quite reaching the eyes -->
+    <path d="M-3,-9.5 Q-1,-8 0,-8 Q1,-8 3,-9.5" stroke="#c060a0" stroke-width="2" fill="none" opacity=".14" stroke-linecap="round"/>
+    <path d="M-3,-9.5 Q-1,-8 0,-8 Q1,-8 3,-9.5" stroke="#8a2060" stroke-width="0.7" fill="none" opacity=".55" stroke-linecap="round"/>
+    <!-- right corner slightly lifted — the asymmetry that makes it unsettling -->
+    <path d="M2.8,-9.6 Q3.4,-9 3.2,-8.6" stroke="#8a2060" stroke-width="0.5" fill="none" opacity=".45" stroke-linecap="round"/>
+
+    <!-- HAIR — light coloured, loose, a little wild, floating as if there's always a breeze -->
+    <path d="M-3,-16 Q-7,-20 -5,-23" stroke="#c8a0b8" stroke-width="3" fill="none" opacity=".15" stroke-linecap="round"/>
+    <path d="M-3,-16 Q-7,-20 -5,-23" stroke="#e8d0e0" stroke-width="1" fill="none" opacity=".45" stroke-linecap="round"/>
+    <path d="M0,-17 Q1,-22 3,-24" stroke="#c8a0b8" stroke-width="2.5" fill="none" opacity=".13" stroke-linecap="round"/>
+    <path d="M0,-17 Q1,-22 3,-24" stroke="#e8d0e0" stroke-width="0.8" fill="none" opacity=".4" stroke-linecap="round"/>
+    <path d="M3,-16 Q7,-19 6,-22" stroke="#c8a0b8" stroke-width="2" fill="none" opacity=".12" stroke-linecap="round"/>
+    <path d="M3,-16 Q7,-19 6,-22" stroke="#e8d0e0" stroke-width="0.7" fill="none" opacity=".35" stroke-linecap="round"/>
+    <!-- loose strands -->
+    <path d="M-5,-15 Q-9,-16 -10,-13" stroke="#e0c8d8" stroke-width="0.6" fill="none" opacity=".3" stroke-linecap="round"/>
+    <path d="M5,-14 Q9,-15 9,-12" stroke="#e0c8d8" stroke-width="0.6" fill="none" opacity=".28" stroke-linecap="round"/>
+
+    <!-- ARMS — open wide, the performance gesture, mid-flourish -->
+    <path d="M-3,2 Q-10,-2 -16,-6" stroke="#9a3a8a" stroke-width="3.5" fill="none" opacity=".12" stroke-linecap="round"/>
+    <path d="M-3,2 Q-10,-2 -16,-6" stroke="#e8b0d8" stroke-width="1.1" fill="none" opacity=".42" stroke-linecap="round"/>
+    <!-- left hand — slight wrist flick, performing -->
+    <path d="M-16,-6 Q-18,-8 -17,-10" stroke="#e8b0d8" stroke-width="2" fill="none" opacity=".2" stroke-linecap="round"/>
+    <path d="M-16,-6 Q-18,-8 -17,-10" stroke="#e8b0d8" stroke-width="0.7" fill="none" opacity=".38" stroke-linecap="round"/>
+    <path d="M3,2 Q10,-2 16,-6" stroke="#9a3a8a" stroke-width="3.5" fill="none" opacity=".12" stroke-linecap="round"/>
+    <path d="M3,2 Q10,-2 16,-6" stroke="#e8b0d8" stroke-width="1.1" fill="none" opacity=".42" stroke-linecap="round"/>
+    <path d="M16,-6 Q18,-8 17,-10" stroke="#e8b0d8" stroke-width="2" fill="none" opacity=".2" stroke-linecap="round"/>
+    <path d="M16,-6 Q18,-8 17,-10" stroke="#e8b0d8" stroke-width="0.7" fill="none" opacity=".38" stroke-linecap="round"/>
+
+  </g>
+
+  <!-- her glow — brighter than sphere light, this is conscripted warmth -->
+  <circle cx="0" cy="-4" r="8" fill="none" stroke="#e8b0d8" stroke-width="3" opacity=".08" class="pixie-form"/>
+  <circle cx="0" cy="-4" r="14" fill="none" stroke="#c878a8" stroke-width="1.5" opacity=".05" class="pixie-form" style="animation-delay:-.5s"/>
+
+  <text text-anchor="middle" y="22" font-size="9.5" fill="#9a3a8a" font-family="Cinzel,serif" letter-spacing="1">MANIC</text>
+  <text text-anchor="middle" y="32" font-size="9.5" fill="#9a3a8a" font-family="Cinzel,serif" letter-spacing="1">PIXIE</text>
+  <text text-anchor="middle" y="41" font-size="7.5" fill="#9a3a8a" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif">child of the sphere · dressed in light</text>
+</g>
+
+<!-- GREY WITCH -->
+<g transform="translate(148,450)">
+  <circle r="42" fill="rgba(107,140,176,.06)" stroke="#6b8cb0" stroke-width="1.3" opacity=".85"/>
+  <!-- sky: soft atmospheric washes -->
+  <ellipse cx="0" cy="-20" rx="38" ry="22" fill="#1a2030" opacity=".5" filter="url(#atmo)"/>
+  <ellipse cx="-8" cy="-26" rx="22" ry="10" fill="#222838" opacity=".4" filter="url(#atmo)"/>
+  <ellipse cx="10" cy="-28" rx="18" ry="8" fill="#1e2435" opacity=".35" filter="url(#atmo)"/>
+  <!-- hill: layered for soft topography -->
+  <path d="M-40,20 Q-20,8 0,6 Q20,4 40,14 L42,42 L-42,42Z" fill="#141820" opacity=".65" filter="url(#atmo)"/>
+  <path d="M-42,14 Q-22,4 0,2 Q18,0 42,10" fill="none" stroke="#2a3040" stroke-width="2.5" opacity=".2" stroke-linecap="round"/>
+  <path d="M-42,14 Q-22,4 0,2 Q18,0 42,10" fill="none" stroke="#2a3040" stroke-width="0.9" opacity=".45" stroke-linecap="round"/>
+  <!-- robe: layered rounded-cap paths — same original shape, richer feel -->
+  <path d="M-4,18 Q-8,10 -7,0 Q-6,-10 -2,-16 Q2,-18 5,-16 Q8,-10 7,0 Q8,10 4,18Z" fill="#4a5060" opacity=".45">
+    <animate attributeName="d" values="M-4,18 Q-8,10 -7,0 Q-6,-10 -2,-16 Q2,-18 5,-16 Q8,-10 7,0 Q8,10 4,18Z;M-5,18 Q-10,9 -9,0 Q-8,-10 -2,-16 Q2,-18 5,-16 Q8,-10 6,0 Q7,10 3,18Z;M-4,18 Q-9,10 -8,0 Q-7,-10 -2,-16 Q2,-18 5,-16 Q8,-10 7,0 Q8,10 4,18Z;M-4,18 Q-8,10 -7,0 Q-6,-10 -2,-16 Q2,-18 5,-16 Q8,-10 7,0 Q8,10 4,18Z" dur="5s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <!-- robe shadow layer underneath — depth, not outline -->
+  <path d="M-5,18 Q-10,9 -9,0 Q-8,-11 -2,-17 Q2,-19 5,-17 Q9,-11 10,0 Q10,10 5,18Z" fill="#2a3040" opacity=".25" filter="url(#atmo)"/>
+  <!-- billow — layered rounded edges -->
+  <path d="M-7,8 Q-16,2 -22,-6 Q-18,-4 -14,0 Q-10,4 -8,10" fill="#4a5060" opacity=".28">
+    <animate attributeName="d" values="M-7,8 Q-16,2 -22,-6 Q-18,-4 -14,0 Q-10,4 -8,10;M-8,8 Q-19,1 -26,-8 Q-21,-5 -16,0 Q-11,4 -9,10;M-6,8 Q-14,3 -19,-4 Q-16,-3 -13,1 Q-9,4 -7,10;M-8,8 Q-18,1 -24,-7 Q-20,-4 -15,0 Q-10,4 -8,10;M-7,8 Q-16,2 -22,-6 Q-18,-4 -14,0 Q-10,4 -8,10" dur="5s" begin="-.6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-6,14 Q-18,10 -26,6 Q-20,8 -14,12 Q-10,14 -8,16" fill="#4a5060" opacity=".2">
+    <animate attributeName="d" values="M-6,14 Q-18,10 -26,6 Q-20,8 -14,12 Q-10,14 -8,16;M-7,14 Q-21,9 -30,4 Q-23,7 -16,12 Q-11,14 -9,16;M-5,14 Q-16,10 -22,7 Q-17,9 -12,12 Q-9,14 -7,16;M-6,14 Q-18,10 -26,6 Q-20,8 -14,12 Q-10,14 -8,16" dur="5s" begin="-1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-4,18 Q-14,16 -22,20 Q-16,20 -10,20 Q-6,20 -4,18" fill="#4a5060" opacity=".22">
+    <animate attributeName="d" values="M-4,18 Q-14,16 -22,20 Q-16,20 -10,20 Q-6,20 -4,18;M-5,18 Q-16,15 -26,18 Q-19,19 -12,20 Q-7,20 -5,18;M-4,18 Q-12,16 -19,20 Q-14,20 -9,20 Q-5,20 -4,18;M-4,18 Q-14,16 -22,20 Q-16,20 -10,20 Q-6,20 -4,18" dur="5s" begin="-1.8s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-3,-16 Q-1,-24 2,-26" stroke="#3a4050" stroke-width="2.5" fill="none" opacity=".2" stroke-linecap="round"/>
+  <path d="M-3,-16 Q-1,-24 2,-26" stroke="#3a4050" stroke-width="0.9" fill="none" opacity=".55" stroke-linecap="round"/>
+  <!-- hair — layered round-cap strokes, organic -->
+  <path d="M-5,-24 Q-10,-20 -12,-14 Q-11,-8 -9,-4" stroke="#1a1a28" stroke-width="4" fill="none" opacity=".4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M-5,-24 Q-10,-20 -12,-14 Q-11,-8 -9,-4" stroke="#1a1a28" stroke-width="1.8" fill="none" opacity=".65" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M-4,-26 Q-8,-22 -9,-16 Q-8,-10 -7,-6" stroke="#1a1a28" stroke-width="3" fill="none" opacity=".3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M-4,-26 Q-8,-22 -9,-16 Q-8,-10 -7,-6" stroke="#1a1a28" stroke-width="1.2" fill="none" opacity=".45" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M5,-24 Q8,-20 9,-14 Q8,-8 7,-4" stroke="#1a1a28" stroke-width="3.5" fill="none" opacity=".35" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M5,-24 Q8,-20 9,-14 Q8,-8 7,-4" stroke="#1a1a28" stroke-width="1.5" fill="none" opacity=".55" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- curls — layered -->
+  <path d="M-12,-14 Q-14,-10 -12,-8 Q-10,-6 -9,-4" stroke="#1a1a28" stroke-width="2.5" fill="none" opacity=".22" stroke-linecap="round"/>
+  <path d="M-12,-14 Q-14,-10 -12,-8 Q-10,-6 -9,-4" stroke="#1a1a28" stroke-width="0.9" fill="none" opacity=".38" stroke-linecap="round"/>
+  <path d="M9,-12 Q11,-8 9,-6 Q7,-4 7,-2" stroke="#1a1a28" stroke-width="2" fill="none" opacity=".18" stroke-linecap="round"/>
+  <path d="M9,-12 Q11,-8 9,-6 Q7,-4 7,-2" stroke="#1a1a28" stroke-width="0.8" fill="none" opacity=".32" stroke-linecap="round"/>
+  <!-- face -->
+  <circle cx="0" cy="-22" r="4.5" fill="#1e2030" opacity=".6"/>
+  <path d="M-5,-26 Q0,-28 5,-26 Q4,-22 0,-21 Q-4,-22 -5,-26Z" fill="#3a4055" opacity=".45"/>
+  <!-- EYES — unchanged, these work -->
+  <ellipse cx="-2" cy="-22" rx="1.6" ry="1.1" fill="#1a4a8a" opacity=".9"/>
+  <ellipse cx="2" cy="-22" rx="1.6" ry="1.1" fill="#1a4a8a" opacity=".9"/>
+  <circle cx="-2" cy="-22" r="0.7" fill="#3a7acc" opacity=".85"/>
+  <circle cx="2" cy="-22" r="0.7" fill="#3a7acc" opacity=".85"/>
+  <circle cx="-2" cy="-22" r="0.35" fill="#080c18" opacity=".95"/>
+  <circle cx="2" cy="-22" r="0.35" fill="#080c18" opacity=".95"/>
+  <circle cx="-1.5" cy="-22.4" r="0.2" fill="white" opacity=".8"/>
+  <circle cx="2.5" cy="-22.4" r="0.2" fill="white" opacity=".8"/>
+  <ellipse cx="0" cy="-22" rx="6" ry="4" fill="none" stroke="#3a7acc" stroke-width="0.6" opacity=".2">
+    <animate attributeName="opacity" values=".2;.35;.15;.3;.2" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="rx" values="6;8;5;7;6" dur="3s" repeatCount="indefinite"/>
+  </ellipse>
+  <text text-anchor="middle" y="32" font-size="10" fill="#6b8cb0" font-family="Cinzel,serif" letter-spacing="1.5">GREY WITCH</text>
+  <text text-anchor="middle" y="42" font-size="8.5" fill="#6b8cb0" opacity=".65" font-style="italic" font-family="Cormorant Garamond,serif">the hill · the seeing · the grey</text>
+</g>
+
+<!-- VESSEL -->
+<g transform="translate(720,350)">
+  <circle r="40" fill="rgba(74,138,106,.08)" stroke="#4a8a6a" stroke-width="1.5" opacity=".9"/>
+  <!-- waves — layered strokes, same paths, richer painting feel -->
+  <path d="M-38,22 Q-28,14 -18,20 Q-8,26 2,18 Q12,10 22,18 Q32,24 40,18" fill="none" stroke="#1a4a3a" stroke-width="4" opacity=".15" stroke-linecap="round">
+    <animate attributeName="d" values="M-38,22 Q-28,14 -18,20 Q-8,26 2,18 Q12,10 22,18 Q32,24 40,18;M-38,20 Q-26,12 -16,18 Q-6,24 4,16 Q14,8 24,16 Q34,22 40,16;M-38,22 Q-28,14 -18,20 Q-8,26 2,18 Q12,10 22,18 Q32,24 40,18" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-38,22 Q-28,14 -18,20 Q-8,26 2,18 Q12,10 22,18 Q32,24 40,18" fill="none" stroke="#2a5a4a" stroke-width="1.4" opacity=".48" stroke-linecap="round">
+    <animate attributeName="d" values="M-38,22 Q-28,14 -18,20 Q-8,26 2,18 Q12,10 22,18 Q32,24 40,18;M-38,20 Q-26,12 -16,18 Q-6,24 4,16 Q14,8 24,16 Q34,22 40,16;M-38,22 Q-28,14 -18,20 Q-8,26 2,18 Q12,10 22,18 Q32,24 40,18" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-40,30 Q-30,24 -20,28 Q-10,32 0,26 Q10,20 20,26 Q30,30 40,26" fill="none" stroke="#1a4a3a" stroke-width="3" opacity=".1" stroke-linecap="round">
+    <animate attributeName="d" values="M-40,30 Q-30,24 -20,28 Q-10,32 0,26 Q10,20 20,26 Q30,30 40,26;M-40,28 Q-28,22 -18,26 Q-8,30 2,24 Q12,18 22,24 Q32,28 40,24;M-40,30 Q-30,24 -20,28 Q-10,32 0,26 Q10,20 20,26 Q30,30 40,26" dur="3s" begin="-.8s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <path d="M-40,30 Q-30,24 -20,28 Q-10,32 0,26 Q10,20 20,26 Q30,30 40,26" fill="none" stroke="#2a5a4a" stroke-width="0.9" opacity=".33" stroke-linecap="round">
+    <animate attributeName="d" values="M-40,30 Q-30,24 -20,28 Q-10,32 0,26 Q10,20 20,26 Q30,30 40,26;M-40,28 Q-28,22 -18,26 Q-8,30 2,24 Q12,18 22,24 Q32,28 40,24;M-40,30 Q-30,24 -20,28 Q-10,32 0,26 Q10,20 20,26 Q30,30 40,26" dur="3s" begin="-.8s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <!-- storm clouds: soft washes -->
+  <ellipse cx="-10" cy="-32" rx="22" ry="8" fill="#1a2828" opacity=".48" filter="url(#atmo)"/>
+  <ellipse cx="14" cy="-28" rx="18" ry="7" fill="#1a2828" opacity=".38" filter="url(#atmo)"/>
+  <!-- hull: same shape, soft shadow underneath -->
+  <path d="M-20,18 Q-22,24 -10,28 Q0,30 10,28 Q22,24 20,18 Q10,16 0,16 Q-10,16 -20,18Z" fill="#1a3028" opacity=".4" filter="url(#atmo)"/>
+  <path d="M-20,18 Q-22,24 -10,28 Q0,30 10,28 Q22,24 20,18 Q10,16 0,16 Q-10,16 -20,18Z" fill="#2a4a3a" opacity=".55"/>
+  <!-- hull highlight — layered -->
+  <path d="M-18,18 Q0,14 18,18" fill="none" stroke="#4a8a6a" stroke-width="2.5" opacity=".15" stroke-linecap="round"/>
+  <path d="M-18,18 Q0,14 18,18" fill="none" stroke="#4a8a6a" stroke-width="0.9" opacity=".4" stroke-linecap="round"/>
+  <!-- mast — layered -->
+  <line x1="2" y1="16" x2="2" y2="-18" stroke="#2a4a3a" stroke-width="3" opacity=".2" stroke-linecap="round"/>
+  <line x1="2" y1="16" x2="2" y2="-18" stroke="#3a5a4a" stroke-width="1.3" opacity=".58" stroke-linecap="round"/>
+  <!-- sail -->
+  <path d="M2,-16 Q14,-8 12,10 Q6,14 2,14 Q-2,10 2,-16Z" fill="#3a6a5a" opacity=".28">
+    <animate attributeName="d" values="M2,-16 Q14,-8 12,10 Q6,14 2,14 Q-2,10 2,-16Z;M2,-16 Q16,-6 14,10 Q8,14 2,14 Q-2,10 2,-16Z;M2,-16 Q14,-8 12,10 Q6,14 2,14 Q-2,10 2,-16Z" dur="3.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </path>
+  <!-- figure body — layered -->
+  <path d="M-6,16 Q-5,6 -4,-2 Q-2,-8 0,-10 Q2,-8 4,-2 Q5,6 6,16" fill="#2a4a3a" opacity=".25" filter="url(#atmo)"/>
+  <path d="M-6,16 Q-5,6 -4,-2 Q-2,-8 0,-10 Q2,-8 4,-2 Q5,6 6,16" fill="#3a5a4a" opacity=".32"/>
+  <!-- tiller arm — layered -->
+  <line x1="4" y1="2" x2="14" y2="6" stroke="#3a6a5a" stroke-width="3" opacity=".14" stroke-linecap="round"/>
+  <line x1="4" y1="2" x2="14" y2="6" stroke="#4a7a6a" stroke-width="1.1" opacity=".55" stroke-linecap="round"/>
+  <!-- wheel — crisp, this is the object, should read clearly -->
+  <circle cx="16" cy="7" r="5" fill="none" stroke="#4a8a6a" stroke-width="1" opacity=".55"/>
+  <line x1="13" y1="4" x2="19" y2="10" stroke="#4a8a6a" stroke-width="0.7" opacity=".4"/>
+  <line x1="13" y1="10" x2="19" y2="4" stroke="#4a8a6a" stroke-width="0.7" opacity=".4"/>
+  <!-- urn — layered strokes -->
+  <ellipse cx="-10" cy="-4" rx="5" ry="7" fill="none" stroke="#3a7a5a" stroke-width="2.5" opacity=".2"/>
+  <ellipse cx="-10" cy="-4" rx="5" ry="7" fill="none" stroke="#4a8a6a" stroke-width="1.1" opacity=".58"/>
+  <ellipse cx="-10" cy="-9" rx="3.5" ry="2" fill="none" stroke="#3a7a5a" stroke-width="2" opacity=".15"/>
+  <ellipse cx="-10" cy="-9" rx="3.5" ry="2" fill="none" stroke="#4a8a6a" stroke-width="0.9" opacity=".48"/>
+  <!-- water from urn — layered -->
+  <path d="M-14,-6 Q-20,0 -22,8 Q-20,10 -18,8" fill="none" stroke="#3a8a7a" stroke-width="3" opacity=".12" stroke-linecap="round">
+    <animate attributeName="opacity" values=".12;.22;.08;.16;.12" dur="3s" repeatCount="indefinite"/>
+  </path>
+  <path d="M-14,-6 Q-20,0 -22,8 Q-20,10 -18,8" fill="none" stroke="#4a9a8a" stroke-width="0.9" opacity=".4" stroke-linecap="round">
+    <animate attributeName="opacity" values=".4;.65;.3;.5;.4" dur="3s" repeatCount="indefinite"/>
+  </path>
+  <path d="M-15,-4 Q-22,2 -24,10" fill="none" stroke="#4a9a8a" stroke-width="2" opacity=".08" stroke-linecap="round">
+    <animate attributeName="opacity" values=".08;.18;.05;.12;.08" dur="3s" begin="-.5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M-15,-4 Q-22,2 -24,10" fill="none" stroke="#4a9a8a" stroke-width="0.5" opacity=".25" stroke-linecap="round">
+    <animate attributeName="opacity" values=".25;.45;.2;.35;.25" dur="3s" begin="-.5s" repeatCount="indefinite"/>
+  </path>
+  <!-- head -->
+  <circle cx="0" cy="-13" r="4" fill="#2a4a3a" opacity=".3" filter="url(#atmo)"/>
+  <circle cx="0" cy="-13" r="4" fill="#3a5a4a" opacity=".35"/>
+  <!-- hair/wind — layered -->
+  <path d="M-3,-16 Q-8,-14 -10,-10" stroke="#2a3a32" stroke-width="3.5" fill="none" opacity=".15" stroke-linecap="round"/>
+  <path d="M-3,-16 Q-8,-14 -10,-10" stroke="#2a3a32" stroke-width="1.5" fill="none" opacity=".35" stroke-linecap="round"/>
+  <text text-anchor="middle" y="38" font-size="10.5" fill="#4a8a6a" font-family="Cinzel,serif" letter-spacing="1.5">VESSEL</text>
+  <text text-anchor="middle" y="48" font-size="8.5" fill="#4a8a6a" opacity=".65" font-style="italic" font-family="Cormorant Garamond,serif">the tiller · the urn · the storm</text>
+</g>
+<text x="762" y="310" font-size="7" fill="#4a8a6a" opacity=".5" font-style="italic" font-family="Cormorant Garamond,serif">the world →</text>
+
+<!-- SENEX -->
+<g transform="translate(840,470)">
+  <circle r="44" fill="rgba(138,122,80,.07)" stroke="#8a7a50" stroke-width="1.3" opacity=".85"/>
+  <!-- lantern glow — unchanged, works well -->
+  <circle cx="6" cy="-28" r="7" fill="#c9a84c" opacity=".07" class="lantern-glow" filter="url(#warm-glow)"/>
+  <circle cx="6" cy="-28" r="4" fill="#c9a84c" opacity=".1" class="lantern-glow" filter="url(#warm-glow)"/>
+  <!-- staff — layered -->
+  <line x1="6" y1="-24" x2="6" y2="18" stroke="#6a5a30" stroke-width="3.5" opacity=".18" stroke-linecap="round"/>
+  <line x1="6" y1="-24" x2="6" y2="18" stroke="#8a7a50" stroke-width="1.4" opacity=".58" stroke-linecap="round"/>
+  <!-- lantern body -->
+  <rect x="2" y="-32" width="8" height="10" rx="1.5" fill="none" stroke="#c9a84c" stroke-width="0.9" opacity=".55"/>
+  <line x1="6" y1="-32" x2="6" y2="-34" stroke="#c9a84c" stroke-width="0.9" opacity=".45"/>
+  <ellipse cx="6" cy="-28" rx="2" ry="2.5" fill="#c9a84c" opacity=".35" class="lantern-flame">
+    <animate attributeName="ry" values="2.5;3.2;1.8;3.5;2;3;2.5" keyTimes="0;0.15;0.3;0.45;0.6;0.8;1" dur="2.1s" repeatCount="indefinite"/>
+    <animate attributeName="rx" values="2;1.6;2.2;1.5;2.1;1.8;2" keyTimes="0;0.15;0.3;0.45;0.6;0.8;1" dur="2.1s" repeatCount="indefinite"/>
+  </ellipse>
+  <!-- robe — shadow layer underneath, same shape -->
+  <path d="M1,16 Q-11,10 -12,-2 Q-9,-14 -3,-18 Q2,-20 6,-18 Q10,-14 11,-2 Q10,10 1,16Z" fill="#4a4028" opacity=".22" filter="url(#atmo)"/>
+  <path d="M0,16 Q-10,10 -11,-2 Q-8,-14 -2,-18 Q2,-20 6,-18 Q10,-14 11,-2 Q10,10 0,16Z" fill="#8a7a50" opacity=".15"/>
+  <!-- hood -->
+  <path d="M-4,-18 Q-2,-28 6,-30 Q12,-28 10,-18 Q8,-14 6,-16 Q2,-18 -4,-18Z" fill="#8a7a50" opacity=".18"/>
+  <!-- beard — layered -->
+  <path d="M3,-18 Q4,-14 3,-12" stroke="#8a7a50" stroke-width="2" fill="none" opacity=".1" stroke-linecap="round"/>
+  <path d="M3,-18 Q4,-14 3,-12" stroke="#8a7a50" stroke-width="0.6" fill="none" opacity=".2" stroke-linecap="round"/>
+  <!-- chains — unchanged, dasharray is the right aesthetic here -->
+  <path d="M-7,2 Q-12,6 -14,12 Q-12,14 -10,12 Q-8,8 -6,6" stroke="#8a7a50" stroke-width="0.8" fill="none" opacity=".35" stroke-dasharray="2 1.5" stroke-linecap="round"/>
+  <path d="M-10,12 Q-12,16 -10,18" stroke="#8a7a50" stroke-width="0.7" fill="none" opacity=".25" stroke-dasharray="2 1.5" stroke-linecap="round"/>
+  <!-- book -->
+  <rect x="-12" y="-4" width="7" height="9" rx="0.5" fill="none" stroke="#8a7a50" stroke-width="0.7" opacity=".3"/>
+  <!-- lantern beam -->
+  <line x1="6" y1="-22" x2="2" y2="4" stroke="#c9a84c" stroke-width="0.4" opacity=".12"/>
+  <text text-anchor="middle" y="30" font-size="10.5" fill="#8a7a50" font-family="Cinzel,serif" letter-spacing="1.5">SENEX</text>
+  <text text-anchor="middle" y="41" font-size="8.5" fill="#8a7a50" opacity=".65" font-style="italic" font-family="Cormorant Garamond,serif">the hermit · lantern · chains</text>
+</g>
+
+<!-- WOUND -->
+<g transform="translate(118,572)">
+  <circle r="38" fill="rgba(139,58,58,.06)" stroke="#8b3a3a" stroke-width="1.3" opacity=".8"/>
+  <!-- gaseous anomaly — unchanged, already atmospheric -->
+  <ellipse cx="2" cy="-4" rx="22" ry="16" fill="#3a0818" opacity=".5" class="wound-gas">
+    <animate attributeName="rx" values="22;24;21;23;22" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="ry" values="16;18;15;17;16" dur="4s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="-4" cy="-6" rx="14" ry="10" fill="#5a0a20" opacity=".35" class="wound-gas-2">
+    <animate attributeName="rx" values="14;16;13;15;14" dur="4s" begin="-1.2s" repeatCount="indefinite"/>
+    <animate attributeName="ry" values="10;12;9;11;10" dur="4s" begin="-1.2s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="6" cy="-2" rx="10" ry="8" fill="#3a0818" opacity=".3" class="wound-gas">
+    <animate attributeName="rx" values="10;11;9;10;10" dur="3.5s" begin="-.5s" repeatCount="indefinite"/>
+  </ellipse>
+  <!-- wisps — layered round-cap strokes -->
+  <path d="M-18,-10 Q-24,-18 -20,-24" stroke="#6b1a2a" stroke-width="3" fill="none" stroke-linecap="round" opacity=".1" class="wound-wisp">
+    <animate attributeName="d" values="M-18,-10 Q-24,-18 -20,-24;M-18,-13 Q-24,-22 -20,-28;M-18,-10 Q-24,-18 -20,-24" dur="3.5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M-18,-10 Q-24,-18 -20,-24" stroke="#8b3a3a" stroke-width="0.8" fill="none" stroke-linecap="round" class="wound-wisp">
+    <animate attributeName="d" values="M-18,-10 Q-24,-18 -20,-24;M-18,-13 Q-24,-22 -20,-28;M-18,-10 Q-24,-18 -20,-24" dur="3.5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M18,-8 Q26,-14 24,-22" stroke="#6b1a2a" stroke-width="3" fill="none" stroke-linecap="round" opacity=".1" class="wound-wisp-2">
+    <animate attributeName="d" values="M18,-8 Q26,-14 24,-22;M18,-11 Q26,-18 24,-26;M18,-8 Q26,-14 24,-22" dur="3.5s" begin="-1s" repeatCount="indefinite"/>
+  </path>
+  <path d="M18,-8 Q26,-14 24,-22" stroke="#8b3a3a" stroke-width="0.8" fill="none" stroke-linecap="round" class="wound-wisp-2">
+    <animate attributeName="d" values="M18,-8 Q26,-14 24,-22;M18,-11 Q26,-18 24,-26;M18,-8 Q26,-14 24,-22" dur="3.5s" begin="-1s" repeatCount="indefinite"/>
+  </path>
+  <path d="M0,-20 Q4,-28 2,-34" stroke="#6b1a2a" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".1" class="wound-wisp-3">
+    <animate attributeName="d" values="M0,-20 Q4,-28 2,-34;M0,-23 Q4,-32 2,-38;M0,-20 Q4,-28 2,-34" dur="3.5s" begin="-2s" repeatCount="indefinite"/>
+  </path>
+  <path d="M0,-20 Q4,-28 2,-34" stroke="#8b3a3a" stroke-width="0.7" fill="none" stroke-linecap="round" class="wound-wisp-3">
+    <animate attributeName="d" values="M0,-20 Q4,-28 2,-34;M0,-23 Q4,-32 2,-38;M0,-20 Q4,-28 2,-34" dur="3.5s" begin="-2s" repeatCount="indefinite"/>
+  </path>
+  <path d="M-10,-18 Q-16,-26 -12,-32" stroke="#6b1a2a" stroke-width="2" opacity=".08" fill="none" stroke-linecap="round" class="wound-wisp"/>
+  <path d="M-10,-18 Q-16,-26 -12,-32" stroke="#6b1a2a" stroke-width="0.5" fill="none" stroke-linecap="round" class="wound-wisp"/>
+  <path d="M12,-16 Q18,-24 14,-30" stroke="#6b1a2a" stroke-width="2" opacity=".08" fill="none" stroke-linecap="round" class="wound-wisp-2"/>
+  <path d="M12,-16 Q18,-24 14,-30" stroke="#6b1a2a" stroke-width="0.5" fill="none" stroke-linecap="round" class="wound-wisp-2"/>
+  <circle cx="-8" cy="-14" r="0.6" fill="#c87080" opacity=".4" class="wound-gas-2"/>
+  <circle cx="10" cy="-18" r="0.5" fill="#c87080" opacity=".35" class="wound-gas"/>
+  <circle cx="2" cy="-22" r="0.7" fill="#c87080" opacity=".3" class="wound-gas-2"/>
+  <circle cx="-14" cy="-8" r="0.4" fill="#c87080" opacity=".25" class="wound-gas"/>
+  <!-- wound itself — replaced polygon edges with layered rounded paths -->
+  <!-- underlayer: soft shadow -->
+  <path d="M-10,-2 Q-6,4 -2,2 Q2,6 6,2 Q10,4 12,-2" fill="none" stroke="#3a0810" stroke-width="5" opacity=".4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- wound body fill -->
+  <path d="M-8,0 Q-4,6 0,4 Q4,8 8,2" fill="#200008" opacity=".8" class="wound-deep"/>
+  <!-- wound edges — rounded, layered, felt not drawn -->
+  <path d="M-10,-2 Q-6,4 -2,2 Q2,6 6,2 Q10,4 12,-2" fill="none" stroke="#6a2028" stroke-width="3" opacity=".25" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M-10,-2 Q-6,4 -2,2 Q2,6 6,2 Q10,4 12,-2" fill="none" stroke="#8b3a3a" stroke-width="1.5" opacity=".65" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- tissue detail — rounded -->
+  <path d="M-10,-2 Q-12,-4 -8,-6 Q-4,-4 -2,2" fill="#5a1a22" opacity=".38" stroke-linecap="round"/>
+  <path d="M12,-2 Q14,-4 10,-7 Q6,-4 6,2" fill="#5a1a22" opacity=".32" stroke-linecap="round"/>
+  <ellipse cx="0" cy="2" rx="6" ry="3" fill="#0e0006" opacity=".7" class="wound-deep"/>
+  <!-- glow edge — layered -->
+  <path d="M-10,-2 Q-6,4 -2,2 Q2,6 6,2 Q10,4 12,-2" fill="none" stroke="#c85060" stroke-width="3" opacity=".08" stroke-linecap="round" class="wound-edge"/>
+  <path d="M-10,-2 Q-6,4 -2,2 Q2,6 6,2 Q10,4 12,-2" fill="none" stroke="#c85060" stroke-width="0.5" opacity=".35" stroke-linecap="round" class="wound-edge"/>
+  <text text-anchor="middle" y="24" font-size="10.5" fill="#8b3a3a" font-family="Cinzel,serif" letter-spacing="1">THE WOUND</text>
+  <text text-anchor="middle" y="35" font-size="8.5" fill="#8b3a3a" opacity=".65" font-style="italic" font-family="Cormorant Garamond,serif">open · spatial · foundational</text>
+</g>
+
+<!-- QUIET HEALER — green sprite, water-adjacent, barely visible -->
+<g transform="translate(500,635)">
+  <circle r="30" fill="rgba(74,138,106,.07)" stroke="#4a8a6a" stroke-width="1" opacity=".7" stroke-dasharray="3 3"/>
+  <!-- water shimmer beneath her -->
+  <ellipse cx="0" cy="14" rx="22" ry="5" fill="#2a5a4a" opacity=".18"/>
+  <ellipse cx="0" cy="14" rx="18" ry="3" fill="#3a7a5a" opacity=".12"/>
+  <!-- small ripple -->
+  <ellipse cx="0" cy="14" rx="8" ry="1.5" fill="none" stroke="#4a9a7a" stroke-width="0.5" opacity=".25">
+    <animate attributeName="rx" values="8;18;8" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values=".25;.04;.25" dur="3s" repeatCount="indefinite"/>
+  </ellipse>
+  <!-- SPRITE FIGURE — tiny, green, barely there -->
+  <g opacity=".75">
+    <!-- body glow -->
+    <ellipse cx="0" cy="-2" rx="5" ry="8" fill="#3a7a5a" opacity=".18" filter="url(#warm-glow)">
+      <animate attributeName="opacity" values=".18;.32;.12;.24;.18" dur="4s" repeatCount="indefinite"/>
+    </ellipse>
+    <!-- body -->
+    <path d="M-3,8 Q-4,2 -3,-3 Q-1,-6 0,-7 Q1,-6 3,-3 Q4,2 3,8Z" fill="#4a9a6a" opacity=".35"/>
+    <path d="M-3,8 Q-4,2 -3,-3 Q-1,-6 0,-7 Q1,-6 3,-3 Q4,2 3,8Z" fill="none" stroke="#6abf8a" stroke-width="0.6" opacity=".5"/>
+    <!-- head — small, round -->
+    <circle cx="0" cy="-10" r="4" fill="#4a9a6a" opacity=".3"/>
+    <circle cx="0" cy="-10" r="2.8" fill="#6abf8a" opacity=".35"/>
+    <!-- eyes — ancient, calm -->
+    <circle cx="-1.3" cy="-10.5" r="0.7" fill="#0a2a1a" opacity=".75"/>
+    <circle cx="1.3" cy="-10.5" r="0.7" fill="#0a2a1a" opacity=".75"/>
+    <circle cx="-1.1" cy="-10.8" r="0.25" fill="#8adfaa" opacity=".8"/>
+    <circle cx="1.5" cy="-10.8" r="0.25" fill="#8adfaa" opacity=".8"/>
+    <!-- hair — short, water-smoothed, green-dark -->
+    <path d="M-3,-12 Q-5,-15 -3,-17" stroke="#2a6a4a" stroke-width="1.5" fill="none" opacity=".4" stroke-linecap="round"/>
+    <path d="M0,-14 Q0,-17 1,-19" stroke="#2a6a4a" stroke-width="1.2" fill="none" opacity=".35" stroke-linecap="round"/>
+    <path d="M3,-12 Q5,-15 3,-17" stroke="#2a6a4a" stroke-width="1.2" fill="none" opacity=".32" stroke-linecap="round"/>
+    <!-- arms — at sides, patient, not reaching -->
+    <path d="M-3,0 Q-7,2 -9,6" stroke="#4a8a6a" stroke-width="2" fill="none" opacity=".25" stroke-linecap="round"/>
+    <path d="M-3,0 Q-7,2 -9,6" stroke="#6abf8a" stroke-width="0.7" fill="none" opacity=".45" stroke-linecap="round"/>
+    <path d="M3,0 Q7,2 9,6" stroke="#4a8a6a" stroke-width="2" fill="none" opacity=".25" stroke-linecap="round"/>
+    <path d="M3,0 Q7,2 9,6" stroke="#6abf8a" stroke-width="0.7" fill="none" opacity=".45" stroke-linecap="round"/>
+    <!-- legs — small, rooted -->
+    <path d="M-1,8 Q-2,12 -2,15" stroke="#4a8a6a" stroke-width="1.8" fill="none" opacity=".22" stroke-linecap="round"/>
+    <path d="M-1,8 Q-2,12 -2,15" stroke="#6abf8a" stroke-width="0.6" fill="none" opacity=".4" stroke-linecap="round"/>
+    <path d="M1,8 Q2,12 2,15" stroke="#4a8a6a" stroke-width="1.8" fill="none" opacity=".22" stroke-linecap="round"/>
+    <path d="M1,8 Q2,12 2,15" stroke="#6abf8a" stroke-width="0.6" fill="none" opacity=".38" stroke-linecap="round"/>
+    <!-- tiny float animation -->
+    <animateTransform attributeName="transform" type="translate" values="0,0;0,-2;0,1;0,-1;0,0" keyTimes="0;0.3;0.55;0.8;1" dur="6s" repeatCount="indefinite" additive="sum"/>
+  </g>
+  <text text-anchor="middle" y="-22" font-size="8" fill="#4a8a6a" font-family="Cinzel,serif" letter-spacing="1">QUIET</text>
+  <text text-anchor="middle" y="-13" font-size="8" fill="#4a8a6a" font-family="Cinzel,serif" letter-spacing="1">HEALER</text>
+  <text text-anchor="middle" y="28" font-size="7.5" fill="#4a8a6a" opacity=".6" font-style="italic" font-family="Cormorant Garamond,serif">patience · not confrontation</text>
+</g>
+
+</svg>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="li"><div class="ll" style="background:#c9a84c;opacity:.8"></div><span>flows into / nourishes</span></div>
+  <div class="li"><div class="ll" style="height:1px;background:repeating-linear-gradient(to right,#6b1fa0 0,#6b1fa0 5px,transparent 5px,transparent 9px);opacity:.7"></div><span>blocks / intercepts</span></div>
+  <div class="li"><div class="ll" style="background:#8b3a3a;opacity:.7"></div><span>created / caused</span></div>
+  <div class="li"><div class="ll" style="background:#4a8a6a;opacity:.8"></div><span>transmits outward</span></div>
+  <div class="li"><div class="ll" style="height:1px;background:repeating-linear-gradient(to right,#8a8070 0,#8a8070 3px,transparent 3px,transparent 7px);opacity:.6"></div><span>counterpart / influence</span></div>
+  <div class="li"><div class="ll" style="height:1px;background:repeating-linear-gradient(to right,#7a9a8a 0,#7a9a8a 2px,transparent 2px,transparent 5px);opacity:.6"></div><span>subtle / quiet</span></div>
+  <div class="li"><div class="ll" style="background:#c9a84c;opacity:.3;height:3px"></div><span>the channel</span></div>
+  <div class="li"><div class="ll" style="height:1px;background:repeating-linear-gradient(to right,#9a3a8a 0,#9a3a8a 3px,transparent 3px,transparent 6px);opacity:.7"></div><span>sphere emissary / mirror</span></div>
+  <div class="li"><div class="ll" style="height:1px;background:repeating-linear-gradient(to right,#c9a84c 0,#c9a84c 4px,transparent 4px,transparent 7px);opacity:.5"></div><span>deep alignment</span></div>
+</div>
+
+<!-- CARDS -->
+<div class="sec">THE VALLEY</div>
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="card" style="--c:#4a7c6a;border:1px solid rgba(74,124,106,.2);padding:0;">
+    <div class="cb"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/valley.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THEVALLEY" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THEVALLEY"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THEVALLEY"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THEVALLEY)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#4a7c6a" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#4a7c6a" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#4a7c6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#4a7c6a" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#4a7c6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#4a7c6a" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#4a7c6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#4a7c6a" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#4a7c6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#4a7c6a" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#4a7c6a" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#4a7c6a" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#4a7c6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#4a7c6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#4a7c6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#4a7c6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#4a7c6a" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#4a7c6a" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#4a7c6a" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#4a7c6a" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#4a7c6a' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE CENTRE</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#4a7c6a" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THEVALLEY)">THE VALLEY</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#4a7c6a" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">the true interior self</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE CENTRE</span>
+    <div class="ct">The Valley — The True Interior Self</div>
+    <p class="cd">Wide, lush, peaceful, pristine. Rolling hills, distant mountains, soft waving grass. The valley is whole as it is — the parts do not fill a lack, they visit. They live in the void outside, in darkness, present and available. The Anima flows in and out freely, unconstrained. All others are welcomed when the gate is open or when called — if the sphere doesn't block the signal. The gate is open now.</p>
+    <div class="tags"><span class="tag">vast</span><span class="tag">lush</span><span class="tag">complete in itself</span><span class="tag">the gate is open</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">AUTONOMOUS FORCES</div>
+<div class="grid">
+
+  <!-- SPHERE -->
+  <div class="card sphere-card" style="--c:#6b1fa0;grid-column:1/-1;padding:0;">
+    <div class="cb" style="background:#6b1fa0"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/sphere.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THESPHERE" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THESPHERE"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THESPHERE"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THESPHERE)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#6b1fa0" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#6b1fa0" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#6b1fa0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#6b1fa0" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#6b1fa0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#6b1fa0" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#6b1fa0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#6b1fa0" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#6b1fa0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#6b1fa0" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#6b1fa0" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#6b1fa0" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#6b1fa0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#6b1fa0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#6b1fa0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#6b1fa0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#6b1fa0" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#6b1fa0" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#6b1fa0" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#6b1fa0" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#6b1fa0' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE SHADOW</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#6b1fa0" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THESPHERE)">THE SPHERE</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#6b1fa0" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">rage · overwhelm · the siege</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE SHADOW</span>
+    <div class="ct">The Sphere</div>
+    <p class="cd">Dark purple, organic, grown automatically like scar tissue. Not built consciously. Developed autonomous personality: cold malicious strikes, HOW DARE YOU indignant authority, laughter at vulnerability. Not a wounded soldier — a usurper that believes it has dominion. Intercepts genuine pain, reroutes through rage, leaves the real wound to be felt alone weeks later. Waits for audiences and strikes exactly when transmission could reach someone. Growing quieter. <em>Trigger condition refined: not blindside alone, but blindside landing on top of cumulative load. The threshold is the load, not the event.</em> Most dangerous in Senex's clothing — wears the cloak of discipline and calm authority, performs wisdom using what it knows has worked before (often unintentional lies), leaving Mit to feel the gap afterwards. The Senex wouldn't lie. The sphere doesn't have the long view — only survival. Its tell: performing wisdom rather than accessing it.</p>
+    <div class="tags"><span class="tag">usurper</span><span class="tag">autonomous</span><span class="tag">interceptor</span><span class="tag">impersonates senex</span><span class="tag">cumulative load</span><span class="tag">growing quieter</span><span class="tag">blended signal</span><span class="tag">caught in real time</span><span class="tag">threat assessment</span></div>
+    </div>
+  </div>
+
+  <!-- MANIC PIXIE -->
+  <div class="card" style="--c:#9a3a8a;border:1px solid rgba(154,58,138,.2);grid-column:1/-1;background:linear-gradient(135deg,#120818,#1e0a28)!important;padding:0;">
+    <div class="cb" style="background:#9a3a8a"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/pixie.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THEMANICPIXIE" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THEMANICPIXIE"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THEMANICPIXIE"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THEMANICPIXIE)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#9a3a8a" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#9a3a8a" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#9a3a8a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#9a3a8a" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#9a3a8a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#9a3a8a" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#9a3a8a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#9a3a8a" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#9a3a8a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#9a3a8a" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#9a3a8a" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#9a3a8a" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#9a3a8a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#9a3a8a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#9a3a8a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#9a3a8a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#9a3a8a" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#9a3a8a" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#9a3a8a" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#9a3a8a" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#9a3a8a' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>CHILD OF THE SPHERE</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#9a3a8a" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THEMANICPIXIE)">THE MANIC PIXIE</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#9a3a8a" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">changeling · no aftermath</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE MANIC PIXIE — CHILD OF THE SPHERE</span>
+    <div class="ct">The Emissary — A Changeling Made in Darkness, Dressed in Light</div>
+    <p class="cd">Small fairy figure, feminine in nature, light colouring, gossamer wings, sharp features. A sweet and cruel grin simultaneously — wider than it should be, not quite reaching the eyes. She carries no aftermath — flutters back to her corner of the void unbothered. The sphere carries Phase 3 and directs the judgment at Mit, despite Mit being bypassed the entire sequence.<br><br>Genuine Mit energy conscripted into sphere service. <em>Three-phase sequence:</em> Phase 1 (Smother) — Senex suppressed; Phase 2 (Deploy) — Pixie fills the gap, says the charming thing; Phase 3 (Destroy and Judge) — sphere returns, turns on Mit for how it was handled. Mit first becomes aware of the sphere at Phase 3. The Pixie is already gone.<br><br><em>She is what people see when they think they're seeing Mit at her worst. The valley is the truth. She is not Mit.</em></p>
+    <div class="tags"><span class="tag">phase 1: smother</span><span class="tag">phase 2: deploy</span><span class="tag">phase 3: destroy</span><span class="tag">conscripted</span><span class="tag">carries no aftermath</span><span class="tag">not Mit</span></div>
+    </div>
+  </div>
+
+  <!-- ANIMA -->
+  <div class="card" style="--c:#c9a84c;border:1px solid rgba(201,168,76,.15);padding:0;">
+    <div class="cb" style="background:#c9a84c"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/anima.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THEANIMA" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THEANIMA"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THEANIMA"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THEANIMA)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#c9a84c" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#c9a84c" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#c9a84c" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#c9a84c" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#c9a84c" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#c9a84c" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#c9a84c" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#c9a84c" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#c9a84c" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#c9a84c" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#c9a84c" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#c9a84c" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#c9a84c" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#c9a84c" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#c9a84c" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#c9a84c" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#c9a84c" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#c9a84c" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#c9a84c" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#c9a84c' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE SOUL VOICE</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#c9a84c" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THEANIMA)">THE ANIMA</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#c9a84c" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">pure · precise · resonant</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE ANIMA</span>
+    <div class="ct">The Soul Voice — Dancer — Wave</div>
+    <p class="cd">Speaks through musical swells and embodied movement. The chest-catching almost unbearable feeling. A ghostly glowing figure in a dress, elemental, dancing on wind — almost visible but not quite manifest. Sound waves rippling across water. Primary channel between conscious self and unconscious depths. Flows in and out of the valley freely — the only part that doesn't wait. The sphere's interference with playing is particularly cruel because it cuts off the primary soul channel. In private she flows completely. The trap is the audience.</p>
+    <div class="tags"><span class="tag">pure</span><span class="tag">precise</span><span class="tag">resonant</span><span class="tag">graceful</span><span class="tag">luminous</span><span class="tag">ocean</span><span class="tag">dancer</span></div>
+    </div>
+  </div>
+
+  <!-- PUER -->
+  <div class="card" style="--c:#c87040;border:1px solid rgba(200,112,64,.15);padding:0;">
+    <div class="cb" style="background:#c87040"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/puer.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THEPUERAETERNUS" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THEPUERAETERNUS"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THEPUERAETERNUS"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THEPUERAETERNUS)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#c87040" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#c87040" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#c87040" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#c87040" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#c87040" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#c87040" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#c87040" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#c87040" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#c87040" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#c87040" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#c87040" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#c87040" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#c87040" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#c87040" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#c87040" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#c87040" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#c87040" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#c87040" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#c87040" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#c87040" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#c87040' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE CHILD</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#c87040" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THEPUERAETERNUS)">THE PUER AETERNUS</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#c87040" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">radiant without effort</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE PUER AETERNUS</span>
+    <div class="ct">The Child — The Radiance — The Undefended</div>
+    <p class="cd">Small, sprite/fae, blonde curls, pure innocence. A childhood Apollo quality — radiant without effort, undefended, genuinely delighted. Wide open eyes. The smile is real. He revels in completion when he gets there.<br><br>The creative block is not laziness — it is the sphere impersonating the Senex and issuing the <em>why bother</em> before the real Senex can offer the lantern. The Puer and the Senex have not failed to connect. They have been intercepted.<br><br><em>Conditions for movement:</em> contained scope, or a trusted companion creating the external scaffold.</p>
+    <div class="tags"><span class="tag">sprite · fae · child</span><span class="tag">radiant</span><span class="tag">undefended</span><span class="tag">intercepted not blocked</span><span class="tag">contained scope</span><span class="tag">external scaffold</span></div>
+    </div>
+  </div>
+
+  <!-- SENEX -->
+  <div class="card" style="--c:#8a7a50;border:1px solid rgba(138,122,80,.15);padding:0;">
+    <div class="cb" style="background:#8a7a50"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/senex.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THESENEX" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THESENEX"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THESENEX"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THESENEX)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#8a7a50" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#8a7a50" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#8a7a50" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#8a7a50" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#8a7a50" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#8a7a50" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#8a7a50" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#8a7a50" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#8a7a50" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#8a7a50" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#8a7a50" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#8a7a50" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#8a7a50" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#8a7a50" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#8a7a50" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#8a7a50" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#8a7a50" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#8a7a50" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#8a7a50" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#8a7a50" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#8a7a50' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE HERMIT</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#8a7a50" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THESENEX)">THE SENEX</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#8a7a50" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">the lantern · the long view</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE SENEX</span>
+    <div class="ct">The Hermit — The Wise Elder</div>
+    <p class="cd">An older man in a thick grey cloak, deep hood, barely-visible beard. He carries chains — chosen, not binding. Ballast, not imprisonment. He holds a book of accumulated knowing and a staff with a lantern. The lantern doesn't illuminate the whole road — only the next step. Already present in moments of flow, in precision of self-observation, in knowing when to rest. Accessible in relational reflection contexts, not only in creative flow states.<br><br>
+    <em>On the Puer relationship:</em> the sphere has been impersonating the Senex specifically to intercept the Puer — issuing the <em>why bother</em> before the real Senex can reach him with the lantern. The relationship is real and available. It has been blocked, not broken.<br><br>
+    <em>Blended signal note:</em> The Senex and the sphere can coexist and run simultaneously, producing a signal Mit cannot always cleanly separate in the moment. Sphere threat assessment (dread of the answer) and genuine Senex patience can be felt at the same time. The ability to hear both and name them separately is itself progress — previously the sphere's signal drowned everything out.</p>
+    <div class="tags"><span class="tag">the hermit</span><span class="tag">lantern</span><span class="tag">ballast</span><span class="tag">long view</span><span class="tag">awakening</span><span class="tag">intercepted not broken</span><span class="tag">blended signal</span><span class="tag">relational access</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sec">MYTHIC SELF</div>
+<div class="grid">
+
+  <!-- TRIPLE GODDESS -->
+  <div class="card" style="--c:#8b7bb0;border:1px solid rgba(139,123,176,.15);padding:0;">
+    <div class="cb" style="background:#8b7bb0"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/goddess.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-TRIPLEGODDESS" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-TRIPLEGODDESS"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-TRIPLEGODDESS"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-TRIPLEGODDESS)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#8b7bb0" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#8b7bb0" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#8b7bb0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#8b7bb0" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#8b7bb0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#8b7bb0" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#8b7bb0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#8b7bb0" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#8b7bb0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#8b7bb0" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#8b7bb0" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#8b7bb0" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#8b7bb0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#8b7bb0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#8b7bb0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#8b7bb0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#8b7bb0" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#8b7bb0" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#8b7bb0" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#8b7bb0" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#8b7bb0' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE MYTHIC SELF</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#8b7bb0" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-TRIPLEGODDESS)">TRIPLE GODDESS</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#8b7bb0" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">maiden · mother · crone</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE TRIPLE GODDESS</span>
+    <div class="ct">Maiden · Mother · Crone</div>
+    <p class="cd">The constellation you were found within. The crone now available and active — wisdom that holds the maiden's feeling without being swept away. Invoked at Samhain. She settled. Doesn't leave after ritual — she becomes available. The triple moon lives permanently over your heart.</p>
+    <div class="tags"><span class="tag">invoked</span><span class="tag">settled</span><span class="tag">tattooed</span></div>
+    </div>
+  </div>
+
+  <!-- GREY WITCH -->
+  <div class="card" style="--c:#6b8cb0;border:1px solid rgba(107,140,176,.15);padding:0;">
+    <div class="cb" style="background:#6b8cb0"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/witch.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THEGREYWITCH" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THEGREYWITCH"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THEGREYWITCH"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THEGREYWITCH)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#6b8cb0" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#6b8cb0" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#6b8cb0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#6b8cb0" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#6b8cb0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#6b8cb0" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#6b8cb0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#6b8cb0" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#6b8cb0" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#6b8cb0" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#6b8cb0" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#6b8cb0" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#6b8cb0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#6b8cb0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#6b8cb0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#6b8cb0" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#6b8cb0" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#6b8cb0" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#6b8cb0" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#6b8cb0" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#6b8cb0' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE CRAFT</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#6b8cb0" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THEGREYWITCH)">THE GREY WITCH</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#6b8cb0" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">the hill · the seeing · the grey</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE GREY WITCH</span>
+    <div class="ct">Stars &amp; Cosmos — All Colours in Potential</div>
+    <p class="cd">Grey is her true nature, not a strategic choice. All-encompassing — contains all colours in potential. Air and water both: shifts and flows depending on current known information. Ethics are living and responsive, not doctrinal. Fixed rules would contradict her nature.<br><br>
+    <em>Relationship to the Sphere:</em> Observes it. Despises it with clear eyes — not from fear but from accurate seeing. Holds the container from outside. Cannot silence it but cuts through eventually, shouting alongside it in Phase 3 until something lands. The most accurate witness on the map.<br><br>
+    <em>Relationship to the Triple Goddess:</em> Deep alignment — shared sacred language. The triple moon is both the Goddess symbol and the craft symbol. Shadow work IS the triple moon practice: approach (maiden), hold (parent), integrate (crone).<br><br>
+    <em>Relationship to the Quiet Healer:</em> They know each other and communicate. Mit is not privy to their conversations — this is accurate, not a limitation.<br><br>
+    <em>Social/craft lore:</em> Greys are rare. Considered naive and headstrong by white witches, weak and distasteful by black. Accepted by most other sects. Consulted for balanced perspective. Swayed quickly by evidence and emotional honesty — not weakness, intellectual integrity. Specialise in cosmic witchcraft — channeling universal will for guidance, instilling intention through ritual and manifestation. Typically found in leadership-adjacent roles: SME, oracle, solutions-focused — not THE leader but essential to leadership structures.<br><br>
+    <em>Symbols:</em> Triple moon tattoo (sternum) — Goddess, craft, constellation of self. Sun and moon tattoo (back of neck, first tattoo) — the Grey Witch symbol. Balance of light and dark held in one circle. She doesn't need to be seen — the symbol sits where Mit cannot see it.<br><br>
+    <em>Development note:</em> As is her nature, lore is always expanding. Do not treat this entry as complete.</p>
+    <div class="tags"><span class="tag">grey — all colours</span><span class="tag">air and water</span><span class="tag">living ethics</span><span class="tag">cosmic witchcraft</span><span class="tag">most accurate witness</span><span class="tag">triple moon</span><span class="tag">sun and moon tattoo</span><span class="tag">expanding lore</span></div>
+    </div>
+  </div>
+
+  <!-- VESSEL -->
+  <div class="card" style="--c:#4a8a6a;border:1px solid rgba(74,138,106,.2);padding:0;">
+    <div class="cb" style="background:#4a8a6a"></div>
+    <div class="card-illo" style="background:#040a08;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/vessel.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-vessel" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-vessel"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="300" height="450" fill="url(#tf-vig-vessel)"/>
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#4a8a6a" stroke-width="1.2" opacity=".55"/>
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#4a8a6a" stroke-width="0.5" opacity=".3"/>
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#4a8a6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#4a8a6a" opacity=".6"/>
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#4a8a6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#4a8a6a" opacity=".6"/>
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#4a8a6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#4a8a6a" opacity=".6"/>
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#4a8a6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#4a8a6a" opacity=".6"/>
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#4a8a6a" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#4a8a6a" opacity=".4"/>
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#4a8a6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#4a8a6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#4a8a6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#4a8a6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#4a8a6a" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#4a8a6a" stroke-width="0.8" opacity=".4"/>
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#4a8a6a" opacity=".08"/>
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#4a8a6a" stroke-width="0.8" opacity=".5"/>
+      <text x="150" y="418" font-size="6.5" fill="#4a8a6a" font-family="Cinzel,serif" letter-spacing="2.5" text-anchor="middle" opacity=".5">AQUARIUS · THE CONDUIT</text>
+      <text x="150" y="430" font-size="11" fill="#4a8a6a" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-vessel)">THE VESSEL</text>
+      <text x="150" y="442" font-size="7" fill="#4a8a6a" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">the tiller · the urn · mais bien sûr</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE VESSEL · ♒ AQUARIUS</span>
+    <div class="ct">The Water Bearer — The Conduit</div>
+    <p class="cd">Not a water sign but an air sign. What is carried is vision and ideas for the collective, not personal feeling. Doesn't keep the water — pours it out for others. The myth written in the stars before any of this was named. The sphere didn't block personal expression. It blocked something meant for everyone. <em>Mais bien sûr.</em></p>
+    <div class="tags"><span class="tag">transmission</span><span class="tag">collective</span><span class="tag">vision</span><span class="tag">mais bien sûr</span></div>
+    </div>
+  </div>
+
+  <!-- QUIET HEALER -->
+  <div class="card" style="--c:#7a9a8a;border:1px solid rgba(122,154,138,.15);padding:0;">
+    <div class="cb" style="background:#7a9a8a"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/healer.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THEQUIETHEALER" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THEQUIETHEALER"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THEQUIETHEALER"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THEQUIETHEALER)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#4a8a6a" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#4a8a6a" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#4a8a6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#4a8a6a" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#4a8a6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#4a8a6a" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#4a8a6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#4a8a6a" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#4a8a6a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#4a8a6a" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#4a8a6a" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#4a8a6a" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#4a8a6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#4a8a6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#4a8a6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#4a8a6a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#4a8a6a" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#4a8a6a" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#4a8a6a" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#4a8a6a" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#4a8a6a' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE EMERGING</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#4a8a6a" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THEQUIETHEALER)">THE QUIET HEALER</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#4a8a6a" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">patience · not confrontation</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE QUIET HEALER</span>
+    <div class="ct">The Green Sprite — Ancient, Water-Adjacent, Barely Visible</div>
+    <p class="cd">Small green sprite-like figure, ancient and unimposing. Associated with water. Has been here far longer than the sphere — predates the architecture entirely. Operates underneath awareness — leaves no trace, just outcomes. The sphere announces itself. She just acts.<br><br><em>Her particular relationship with the Puer:</em> she keeps him company in the void. The why bother voice is the sphere impersonating the Senex — but the Healer has been there with the Puer the whole time, quietly. She shields his visions. Her strategy is patience not confrontation: she waits for the sphere to exhaust itself, then opens space for the Puer and Anima to work together privately.<br><br>This is why the creative channel flows in private unwitnessed moments — tram, shower, alone. That's her operation. Running for years beneath awareness. She was there before you knew she existed.</p>
+    <div class="tags"><span class="tag">green sprite</span><span class="tag">water-adjacent</span><span class="tag">ancient</span><span class="tag">companions the Puer</span><span class="tag">patience not confrontation</span><span class="tag">sphere-avoidance</span><span class="tag">enables private flow</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">THE WOUND</div>
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="card" style="--c:#8b3a3a;border:1px solid rgba(139,58,58,.15);padding:0;">
+    <div class="cb" style="background:#8b3a3a"></div>
+    <div class="card-illo" style="background:#080808;position:relative;">
+    <img src="https://nuechthex.github.io/psyche-map/wound.png" style="opacity:.93;" loading="lazy"/>
+    <svg class="tarot-frame" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="tf-vig-THEWOUND" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".6"/>
+        </radialGradient>
+        <filter id="tf-glow-THEWOUND"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tf-soft-THEWOUND"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- vignette -->
+      <rect width="300" height="450" fill="url(#tf-vig-THEWOUND)"/>
+
+      <!-- outer border -->
+      <rect x="8" y="8" width="284" height="434" rx="3" fill="none" stroke="#8b3a3a" stroke-width="1.2" opacity=".55"/>
+      <!-- inner border -->
+      <rect x="14" y="14" width="272" height="422" rx="2" fill="none" stroke="#8b3a3a" stroke-width="0.5" opacity=".3"/>
+
+      <!-- TOP corner ornaments — all four corners -->
+      <!-- top-left -->
+      <path d="M8,28 L8,8 L28,8" fill="none" stroke="#8b3a3a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="8" r="2.5" fill="#8b3a3a" opacity=".6"/>
+      <!-- top-right -->
+      <path d="M292,28 L292,8 L272,8" fill="none" stroke="#8b3a3a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="8" r="2.5" fill="#8b3a3a" opacity=".6"/>
+      <!-- bottom-left -->
+      <path d="M8,422 L8,442 L28,442" fill="none" stroke="#8b3a3a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="442" r="2.5" fill="#8b3a3a" opacity=".6"/>
+      <!-- bottom-right -->
+      <path d="M292,422 L292,442 L272,442" fill="none" stroke="#8b3a3a" stroke-width="1.8" opacity=".8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="292" cy="442" r="2.5" fill="#8b3a3a" opacity=".6"/>
+
+      <!-- top centre ornament — small diamond -->
+      <path d="M150,10 L156,18 L150,26 L144,18 Z" fill="none" stroke="#8b3a3a" stroke-width="1" opacity=".5"/>
+      <circle cx="150" cy="18" r="1.5" fill="#8b3a3a" opacity=".4"/>
+
+      <!-- corner inner flourishes — small arcs -->
+      <path d="M22,22 Q28,22 28,28" fill="none" stroke="#8b3a3a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,22 Q272,22 272,28" fill="none" stroke="#8b3a3a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M22,428 Q28,428 28,422" fill="none" stroke="#8b3a3a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+      <path d="M278,428 Q272,428 272,422" fill="none" stroke="#8b3a3a" stroke-width="0.7" opacity=".35" stroke-linecap="round"/>
+
+      <!-- side mid ornaments — small tick marks -->
+      <line x1="8" y1="221" x2="14" y2="221" stroke="#8b3a3a" stroke-width="0.8" opacity=".4"/>
+      <line x1="292" y1="221" x2="286" y2="221" stroke="#8b3a3a" stroke-width="0.8" opacity=".4"/>
+
+      <!-- BOTTOM NAME BANNER -->
+      <!-- banner bg -->
+      <rect x="14" y="408" width="272" height="28" fill="#000" opacity=".65"/>
+      <rect x="14" y="408" width="272" height="28" fill="#8b3a3a" opacity=".08"/>
+      <!-- banner top rule -->
+      <line x1="14" y1="408" x2="286" y2="408" stroke="#8b3a3a" stroke-width="0.8" opacity=".5"/>
+      <!-- role label small -->
+      <text x='150' y='418' font-size='6.5' fill='#8b3a3a' font-family='Cinzel,serif' letter-spacing='2.5' text-anchor='middle' opacity='.5'>THE WOUND</text>
+      <!-- main name -->
+      <text x="150" y="430" font-size="11" fill="#8b3a3a" font-family="Cinzel,serif" letter-spacing="2" text-anchor="middle" opacity=".9" filter="url(#tf-glow-THEWOUND)">THE WOUND</text>
+      <!-- bottom label italic -->
+      <text x="150" y="442" font-size="7" fill="#8b3a3a" font-family="Cormorant Garamond,serif" letter-spacing="1" text-anchor="middle" opacity=".45" font-style="italic">absence · hollow · foundational</text>
+    </svg>
+    </div>
+    <div style="padding:1.2rem 1.4rem 1.2rem 1.6rem;">
+    <span class="cl">THE FOUNDATIONAL WOUND</span>
+    <div class="ct">Not deficiency — a belief of deficiency, installed before the psyche could defend against it</div>
+    <p class="cd">Childhood ADHD undiagnosed, labelled stupid and dumb. Conditional love taught that being seen fully was dangerous. The wound pattern: real wound → genuine pain → sphere activates → rage → collapse → real pain felt alone, too late. The lying was pre-emptive rejection management. Three years ago: simultaneous loss of everything. Sphere architecture collapsed. Found in the weeping hands. Emerged genuinely different rather than just recovered.</p>
+    <div class="tags"><span class="tag">foundational</span><span class="tag">pre-emptive rejection</span><span class="tag">found · rebuilt</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">THE ANIMA'S FIVE WORDS</div>
+<div class="five">
+  <span class="fw">Pure</span><span class="fw">Precise</span><span class="fw">Resonant</span><span class="fw">Graceful</span><span class="fw">Luminous</span>
+</div>
+
+<div class="sec">THE HERMIT'S KNOCK — SENEX RITUAL</div>
+<div class="dg" style="margin-bottom:1rem;">
+  <h3>CALLING THE SENEX — A SOMATIC ANCHOR</h3>
+  <div class="step"><span class="sn">01</span><p><strong>The anchor.</strong> When calm, oriented, and unhurried arrives — in flow, with Zac, after rest — press thumb firmly into the centre of the opposite palm. Hold for one breath in, one breath out.</p></div>
+  <div class="step"><span class="sn">02</span><p><strong>The recognition.</strong> As you press, simply notice: <em>there he is.</em> Not gratitude. Not summoning. Just acknowledgement — the way you'd recognise someone you know walking into the room.</p></div>
+  <div class="step"><span class="sn">03</span><p><strong>Why it works.</strong> Somatic memory — the body learns to associate that specific sensation with that specific interior state. Repetition in positive moments first, when he's already present. The anchor builds the association before it's needed under pressure.</p></div>
+  <div class="step"><span class="sn">04</span><p><strong>Under pressure.</strong> Once built: when panic fires and the sphere lunges — thumb to palm, one breath. Not thinking your way to calm. Knocking. He may not always answer in time. But the signal was sent.</p></div>
+  <div class="step"><span class="sn">05</span><p><strong>The reflex.</strong> <em>Hang on, let me gather my thoughts.</em> Already present in safe contexts. Needs extending to blindside moments — authority figures, workplace pressure, unexpected questions. The sphere runs on urgency. One beat of time reduces its grip. The lantern only needs a crack.</p></div>
+</div>
+
+<div class="sec">THE SPHERE — THREE-PHASE SEQUENCE</div>
+<div class="dg" style="margin-bottom:2rem;border-color:rgba(154,58,138,.2);background:rgba(154,58,138,.02);">
+  <h3 style="color:#9a3a8a;">DOCUMENTED BEHAVIOUR PATTERN — EMISSARY DEPLOYMENT</h3>
+  <div class="step"><span class="sn" style="color:#9a3a8a;">01</span><p><strong>Phase 1 — Smother.</strong> Trigger condition: blindside landing on top of cumulative load. The threshold is not the event itself — it is the load already present when the event arrives. Sphere detects the threat. Senex is suppressed before he can respond. The lantern goes out.</p></div>
+  <div class="step"><span class="sn" style="color:#9a3a8a;">02</span><p><strong>Phase 2 — Deploy.</strong> The Manic Pixie fills the gap. She performs connection, says the charming thing, keeps the situation moving. She carries genuine Mit warmth — this is what makes her effective and what makes the damage hard to trace. Mit is present and functioning. The sphere is not visibly operating. Nothing feels wrong yet.</p></div>
+  <div class="step"><span class="sn" style="color:#9a3a8a;">03</span><p><strong>Phase 3 — Destroy and Judge.</strong> The sphere returns once the moment has passed. Turns on the situation, and on Mit, for how it was handled. The Pixie's work becomes evidence. Because the energy was genuinely Mit's, the damage feels like Mit's fault. The sphere was never visible. Only this — the aftermath — is visible. <em>This is the phase where Mit first becomes aware the sphere was operating.</em></p></div>
+  <div class="step"><span class="sn" style="color:#9a3a8a;">↯</span><p><strong>Recognition point.</strong> The tell is Phase 3 arriving about something that felt fine at the time. If there is sudden shame or rage about a moment that felt okay in the moment — the Pixie was there. The sphere is judging its own emissary's work. The Pixie carries no aftermath. She is already gone. <em>When Phase 3 hits: the Pixie was here. That's what that was. Not absolution. Just accuracy.</em></p></div>
+</div>
+<div class="map-wrap" style="margin-bottom:2rem;">
+<svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" style="font-family:'Cormorant Garamond',serif;">
+<defs>
+  <radialGradient id="xs-bg" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="#0e0e18"/>
+    <stop offset="100%" stop-color="#080810"/>
+  </radialGradient>
+  <radialGradient id="xs-valley" cx="50%" cy="45%" r="55%">
+    <stop offset="0%" stop-color="#3a6e58" stop-opacity="0.9"/>
+    <stop offset="40%" stop-color="#1e3d2e" stop-opacity="0.85"/>
+    <stop offset="100%" stop-color="#0a1a12" stop-opacity="0.8"/>
+  </radialGradient>
+  <radialGradient id="xs-sky" cx="50%" cy="30%" r="60%">
+    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.6"/>
+    <stop offset="100%" stop-color="#0a1020" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="xs-sphere-outer" cx="50%" cy="40%" r="55%">
+    <stop offset="0%" stop-color="#3a0860"/>
+    <stop offset="100%" stop-color="#1a0430"/>
+  </radialGradient>
+  <filter id="xs-glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="xs-soft"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <clipPath id="xs-dome-clip"><ellipse cx="400" cy="310" rx="195" ry="185"/></clipPath>
+  <clipPath id="xs-sphere-clip"><ellipse cx="400" cy="310" rx="290" ry="268"/></clipPath>
+</defs>
+<rect width="800" height="520" fill="url(#xs-bg)" rx="3"/>
+<text x="34" y="48" font-size="7.5" fill="#8a8070" opacity=".4" font-family="Cinzel,serif" letter-spacing="2">THE VOID</text>
+<text x="34" y="60" font-size="7" fill="#8a8070" opacity=".25" font-style="italic">where the parts wait</text>
+<line x1="60" y1="22" x2="740" y2="22" stroke="#8a8070" stroke-width="0.6" stroke-dasharray="4 3" opacity=".3"/>
+<text x="748" y="26" font-size="7" fill="#8a8070" opacity=".35" font-family="Cinzel,serif">CUT PLANE</text>
+<line x1="60" y1="500" x2="740" y2="500" stroke="#8a8070" stroke-width="0.6" stroke-dasharray="4 3" opacity=".3"/>
+<ellipse cx="400" cy="310" rx="290" ry="268" fill="#0e0418" stroke="#6b1fa0" stroke-width="1.2" opacity=".7"/>
+<ellipse cx="400" cy="310" rx="290" ry="268" fill="url(#xs-sphere-outer)" opacity=".85"/>
+<ellipse cx="310" cy="160" rx="45" ry="28" fill="#4a0878" opacity=".4"/>
+<ellipse cx="520" cy="148" rx="38" ry="22" fill="#3a0560" opacity=".35"/>
+<ellipse cx="190" cy="290" rx="32" ry="50" fill="#4a0878" opacity=".45"/>
+<ellipse cx="614" cy="270" rx="28" ry="55" fill="#3a0560" opacity=".4"/>
+<ellipse cx="260" cy="430" rx="40" ry="24" fill="#4a0878" opacity=".38"/>
+<ellipse cx="550" cy="440" rx="35" ry="20" fill="#3a0560" opacity=".35"/>
+<ellipse cx="400" cy="90" rx="55" ry="20" fill="#420870" opacity=".42"/>
+<path d="M150,200 Q180,240 165,290 Q155,330 170,380" stroke="#5a0e90" stroke-width="1.2" fill="none" opacity=".3" stroke-linecap="round"/>
+<path d="M640,210 Q618,260 630,310 Q640,355 622,400" stroke="#5a0e90" stroke-width="1.2" fill="none" opacity=".3" stroke-linecap="round"/>
+<path d="M250,120 Q290,145 310,130 Q335,118 360,128" stroke="#5a0e90" stroke-width="1" fill="none" opacity=".22" stroke-linecap="round"/>
+<path d="M440,118 Q468,130 500,120 Q528,112 555,132" stroke="#5a0e90" stroke-width="1" fill="none" opacity=".22" stroke-linecap="round"/>
+<path d="M155,240 Q140,290 148,340 Q158,380 145,420" stroke="#6b1fa0" stroke-width="2" fill="none" opacity=".2" stroke-linecap="round"/>
+<path d="M650,235 Q664,285 655,335 Q644,375 658,418" stroke="#6b1fa0" stroke-width="2" fill="none" opacity=".2" stroke-linecap="round"/>
+<ellipse cx="372" cy="108" rx="18" ry="12" fill="#6b1fa0" opacity=".35"/>
+<ellipse cx="428" cy="102" rx="12" ry="8" fill="#5a0e90" opacity=".3"/>
+<ellipse cx="230" cy="350" rx="8" ry="12" fill="#1a0830" opacity=".5"/>
+<ellipse cx="572" cy="340" rx="7" ry="10" fill="#1a0830" opacity=".45"/>
+<ellipse cx="390" cy="94" rx="5" ry="7" fill="#1a0830" opacity=".4"/>
+<ellipse cx="400" cy="310" rx="195" ry="185" fill="url(#xs-valley)" opacity="1"/>
+<ellipse cx="400" cy="240" rx="150" ry="100" fill="url(#xs-sky)" opacity=".7"/>
+<circle cx="330" cy="175" r="0.8" fill="white" opacity=".5"/>
+<circle cx="360" cy="158" r="0.6" fill="white" opacity=".4"/>
+<circle cx="395" cy="165" r="0.9" fill="white" opacity=".55"/>
+<circle cx="425" cy="172" r="0.6" fill="white" opacity=".4"/>
+<circle cx="455" cy="160" r="0.7" fill="white" opacity=".45"/>
+<circle cx="478" cy="178" r="0.5" fill="white" opacity=".35"/>
+<circle cx="312" cy="190" r="0.5" fill="white" opacity=".3"/>
+<circle cx="500" cy="185" r="0.6" fill="white" opacity=".35"/>
+<ellipse cx="400" cy="460" rx="190" ry="18" fill="#0d2a1e" opacity=".9"/>
+<path d="M220,410 Q270,370 320,385 Q360,395 400,378 Q445,360 490,380 Q530,392 575,408" fill="none" stroke="#4a7c6a" stroke-width="1.2" opacity=".5" stroke-linecap="round"/>
+<path d="M240,430 Q290,400 350,415 Q400,425 450,412 Q500,400 555,422" fill="none" stroke="#3a6a58" stroke-width="0.8" opacity=".35" stroke-linecap="round"/>
+<path d="M310,360 Q340,328 370,348 Q390,335 410,348 Q440,325 475,358" fill="none" stroke="#2d5a42" stroke-width="0.9" opacity=".3" stroke-linecap="round"/>
+<ellipse cx="400" cy="300" rx="80" ry="60" fill="#4a7c6a" opacity=".05" filter="url(#xs-glow)"/>
+<ellipse cx="400" cy="310" rx="195" ry="185" fill="none" stroke="#8b3a8a" stroke-width="0.8" opacity=".4" stroke-dasharray="3 3"/>
+<line x1="690" y1="160" x2="648" y2="208" stroke="#b0a890" stroke-width="1" opacity=".8"/>
+<text x="696" y="156" font-size="8.5" fill="#c8bfa8" opacity=".9" font-family="Cinzel,serif" letter-spacing="1">OUTER BOUNDARY</text>
+<text x="696" y="168" font-size="7.5" fill="#9a9080" opacity=".7" font-style="italic">sphere surface</text>
+<line x1="92" y1="240" x2="152" y2="275" stroke="#b0a890" stroke-width="1" opacity=".8"/>
+<text x="14" y="226" font-size="8.5" fill="#c8bfa8" opacity=".9" font-family="Cinzel,serif" letter-spacing="1">SPHERE WALL</text>
+<text x="14" y="238" font-size="7.5" fill="#9a9080" opacity=".7" font-style="italic">organic tissue</text>
+<text x="14" y="249" font-size="7.5" fill="#9a9080" opacity=".7" font-style="italic">autonomous growth</text>
+<line x1="92" y1="318" x2="190" y2="308" stroke="#b0a890" stroke-width="1" opacity=".7"/>
+<text x="14" y="310" font-size="8.5" fill="#c8bfa8" opacity=".85" font-family="Cinzel,serif" letter-spacing="1">DENSE MASS</text>
+<text x="14" y="321" font-size="7.5" fill="#9a9080" opacity=".65" font-style="italic">irregular thickening</text>
+<line x1="92" y1="375" x2="220" y2="355" stroke="#b0a890" stroke-width="1" opacity=".65"/>
+<text x="14" y="366" font-size="8.5" fill="#c8bfa8" opacity=".8" font-family="Cinzel,serif" letter-spacing="1">POROUS GAP</text>
+<text x="14" y="377" font-size="7.5" fill="#9a9080" opacity=".6" font-style="italic">not wholly sealed</text>
+<line x1="400" y1="198" x2="400" y2="228" stroke="#6aac8a" stroke-width="1" opacity=".7"/>
+<text x="400" y="192" font-size="9" fill="#8acaaa" opacity=".95" font-family="Cinzel,serif" letter-spacing="1.5" text-anchor="middle">THE VALLEY</text>
+<text x="400" y="204" font-size="7.5" fill="#6aac8a" opacity=".75" font-style="italic" text-anchor="middle">complete · unaware · its own cosmos</text>
+<line x1="466" y1="278" x2="446" y2="296" stroke="#b0a890" stroke-width="0.8" opacity=".6"/>
+<text x="470" y="272" font-size="8" fill="#c8bfa8" opacity=".75" font-family="Cinzel,serif" letter-spacing="1">INTERIOR LIGHT</text>
+<text x="470" y="283" font-size="7.5" fill="#9a9080" opacity=".55" font-style="italic">source unknown</text>
+<line x1="534" y1="56" x2="408" y2="88" stroke="#c9a84c" stroke-width="0.8" opacity=".45"/>
+<text x="540" y="52" font-size="8" fill="#c9a84c" opacity=".65" font-family="Cinzel,serif" letter-spacing="1">CHANNEL ENTRY</text>
+<line x1="580" y1="468" x2="570" y2="458" stroke="#b0a890" stroke-width="0.8" opacity=".5"/>
+<text x="582" y="472" font-size="8" fill="#c8bfa8" opacity=".6" font-family="Cinzel,serif" letter-spacing="1">FLAT BASE</text>
+<text x="582" y="483" font-size="7.5" fill="#9a9080" opacity=".45" font-style="italic">valley floor</text>
+<line x1="40" y1="488" x2="90" y2="488" stroke="#9a9080" stroke-width="1" opacity=".5"/>
+<line x1="40" y1="483" x2="40" y2="493" stroke="#9a9080" stroke-width="1" opacity=".5"/>
+<line x1="90" y1="483" x2="90" y2="493" stroke="#9a9080" stroke-width="1" opacity=".5"/>
+<text x="65" y="500" font-size="7" fill="#9a9080" opacity=".5" text-anchor="middle" font-family="Cinzel,serif">SCHEMATIC — NOT TO SCALE</text>
+<text x="756" y="492" font-size="7" fill="#9a9080" opacity=".5" text-anchor="end" font-family="Cinzel,serif" letter-spacing="1">FIG. 1 — CROSS-SECTION: THE ARCHITECTURE</text>
+</svg>
+</div>
+
+<!-- ============================================================ -->
+<!-- RELATIONSHIPS SECTION -->
+<!-- ============================================================ -->
+
+<div class="sec" style="margin-top:4rem;">RELATIONSHIPS</div>
+<p style="text-align:center;font-size:.85rem;font-style:italic;color:var(--dim);margin-bottom:3rem;letter-spacing:.08em;">These are not metaphors. They are figures. The relationships between them are real forces.</p>
+
+<!-- RELATIONSHIP DIAGRAM — schematic overview -->
+<div class="map-wrap" style="margin-bottom:3rem;">
+<svg viewBox="0 0 900 480" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="rd-bg" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="#0e0e1a"/>
+    <stop offset="100%" stop-color="#080810"/>
+  </radialGradient>
+  <marker id="rd-gold" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#c9a84c" opacity=".8"/></marker>
+  <marker id="rd-red" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#8b3a3a" opacity=".8"/></marker>
+  <marker id="rd-purple" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#6b1fa0" opacity=".7"/></marker>
+  <marker id="rd-grey" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#8a8070" opacity=".6"/></marker>
+  <marker id="rd-teal" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#4a7c6a" opacity=".7"/></marker>
+  <marker id="rd-pink" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#9a3a8a" opacity=".7"/></marker>
+  <filter id="rd-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="900" height="480" fill="url(#rd-bg)" rx="3"/>
+
+<!-- TITLE -->
+<text x="450" y="28" font-size="9" fill="#8a8070" font-family="Cinzel,serif" letter-spacing="3" text-anchor="middle" opacity=".6">RELATIONSHIP SCHEMATIC</text>
+
+<!-- VALLEY — centre -->
+<circle cx="450" cy="240" r="52" fill="#1a3328" stroke="#4a7c6a" stroke-width="1.4" opacity=".9"/>
+<text x="450" y="236" font-size="9" fill="#6aac8a" font-family="Cinzel,serif" letter-spacing="1.5" text-anchor="middle">THE</text>
+<text x="450" y="249" font-size="9" fill="#6aac8a" font-family="Cinzel,serif" letter-spacing="1.5" text-anchor="middle">VALLEY</text>
+
+<!-- SPHERE ring -->
+<circle cx="450" cy="240" r="100" fill="none" stroke="#6b1fa0" stroke-width="1.5" opacity=".3" stroke-dasharray="6 4"/>
+<text x="340" y="148" font-size="7" fill="#6b1fa0" opacity=".5" font-family="Cinzel,serif" letter-spacing="1">THE SPHERE</text>
+
+<!-- ANIMA — upper left -->
+<circle cx="160" cy="150" r="32" fill="rgba(201,168,76,.1)" stroke="#c9a84c" stroke-width="1.2" opacity=".9"/>
+<text x="160" y="146" font-size="8" fill="#c9a84c" font-family="Cinzel,serif" letter-spacing="1" text-anchor="middle">ANIMA</text>
+<text x="160" y="158" font-size="6.5" fill="#c9a84c" opacity=".6" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">channel</text>
+
+<!-- PUER — upper right -->
+<circle cx="740" cy="150" r="28" fill="rgba(200,112,64,.1)" stroke="#c87040" stroke-width="1.2" opacity=".9"/>
+<text x="740" y="146" font-size="8" fill="#c87040" font-family="Cinzel,serif" letter-spacing="1" text-anchor="middle">PUER</text>
+<text x="740" y="158" font-size="6.5" fill="#c87040" opacity=".6" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">vision</text>
+
+<!-- SENEX — right -->
+<circle cx="780" cy="310" r="30" fill="rgba(138,122,80,.1)" stroke="#8a7a50" stroke-width="1.2" opacity=".9"/>
+<text x="780" y="306" font-size="8" fill="#8a7a50" font-family="Cinzel,serif" letter-spacing="1" text-anchor="middle">SENEX</text>
+<text x="780" y="318" font-size="6.5" fill="#8a7a50" opacity=".6" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">lantern</text>
+
+<!-- VESSEL — right mid -->
+<circle cx="680" cy="380" r="26" fill="rgba(74,138,106,.1)" stroke="#4a8a6a" stroke-width="1.2" opacity=".9"/>
+<text x="680" y="376" font-size="7.5" fill="#4a8a6a" font-family="Cinzel,serif" letter-spacing="1" text-anchor="middle">VESSEL</text>
+<text x="680" y="388" font-size="6.5" fill="#4a8a6a" opacity=".6" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">conduit</text>
+
+<!-- PIXIE — left mid, sphere-adjacent -->
+<circle cx="210" cy="300" r="24" fill="rgba(154,58,138,.1)" stroke="#9a3a8a" stroke-width="1.2" opacity=".85" stroke-dasharray="4 3"/>
+<text x="210" y="296" font-size="7" fill="#9a3a8a" font-family="Cinzel,serif" letter-spacing="1" text-anchor="middle">PIXIE</text>
+<text x="210" y="308" font-size="6" fill="#9a3a8a" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">emissary</text>
+
+<!-- WOUND — lower left -->
+<circle cx="130" cy="380" r="24" fill="rgba(139,58,58,.08)" stroke="#8b3a3a" stroke-width="1.2" opacity=".85"/>
+<text x="130" y="376" font-size="7" fill="#8b3a3a" font-family="Cinzel,serif" letter-spacing="1" text-anchor="middle">WOUND</text>
+<text x="130" y="388" font-size="6" fill="#8b3a3a" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">origin</text>
+
+<!-- GODDESS — top centre -->
+<circle cx="450" cy="60" r="24" fill="rgba(139,123,176,.1)" stroke="#8b7bb0" stroke-width="1.2" opacity=".9"/>
+<text x="450" y="56" font-size="7" fill="#8b7bb0" font-family="Cinzel,serif" letter-spacing="1" text-anchor="middle">GODDESS</text>
+<text x="450" y="68" font-size="6" fill="#8b7bb0" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">above</text>
+
+<!-- WITCH — lower left mid -->
+<circle cx="110" cy="270" r="24" fill="rgba(107,140,176,.08)" stroke="#6b8cb0" stroke-width="1.2" opacity=".9"/>
+<text x="110" y="266" font-size="7" fill="#6b8cb0" font-family="Cinzel,serif" letter-spacing="1" text-anchor="middle">WITCH</text>
+<text x="110" y="278" font-size="6" fill="#6b8cb0" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">grounded</text>
+
+<!-- ── RELATIONSHIP LINES ── -->
+
+<!-- Wound → Sphere (origin) -->
+<line x1="154" y1="369" x2="370" y2="298" stroke="#8b3a3a" stroke-width="1.3" opacity=".55" marker-end="url(#rd-red)"/>
+<text x="250" y="325" font-size="6.5" fill="#8b3a3a" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">grew from</text>
+
+<!-- Sphere → Valley (siege/protection) -->
+<path d="M380,188 Q410,210 412,240" stroke="#6b1fa0" stroke-width="1.2" opacity=".5" fill="none" stroke-dasharray="5 3" marker-end="url(#rd-purple)"/>
+<text x="368" y="210" font-size="6.5" fill="#6b1fa0" opacity=".5" font-style="italic" font-family="Cormorant Garamond,serif">siege /</text>
+<text x="368" y="220" font-size="6.5" fill="#6b1fa0" opacity=".5" font-style="italic" font-family="Cormorant Garamond,serif">protection</text>
+
+<!-- Sphere blocks Anima -->
+<line x1="354" y1="200" x2="196" y2="162" stroke="#6b1fa0" stroke-width="1" opacity=".5" stroke-dasharray="4 3" marker-end="url(#rd-purple)"/>
+<text x="270" y="177" font-size="6" fill="#6b1fa0" opacity=".45" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">blocks audience</text>
+
+<!-- Sphere blocks Puer (intercepts) -->
+<line x1="546" y1="200" x2="714" y2="162" stroke="#6b1fa0" stroke-width="1" opacity=".5" stroke-dasharray="4 3" marker-end="url(#rd-purple)"/>
+<text x="632" y="177" font-size="6" fill="#6b1fa0" opacity=".45" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">intercepts</text>
+
+<!-- Sphere → Pixie (deploys) -->
+<line x1="380" y1="278" x2="234" y2="293" stroke="#9a3a8a" stroke-width="1" opacity=".55" stroke-dasharray="3 3" marker-end="url(#rd-pink)"/>
+<text x="305" y="280" font-size="6" fill="#9a3a8a" opacity=".5" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">deploys</text>
+
+<!-- Anima feeds Valley -->
+<line x1="189" y1="162" x2="404" y2="210" stroke="#c9a84c" stroke-width="1.5" opacity=".7" marker-end="url(#rd-gold)"/>
+<text x="290" y="178" font-size="6.5" fill="#c9a84c" opacity=".65" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">primary channel</text>
+
+<!-- Puer feeds Valley -->
+<line x1="716" y1="162" x2="500" y2="200" stroke="#c87040" stroke-width="1.3" opacity=".6" marker-end="url(#rd-grey)"/>
+<text x="614" y="174" font-size="6.5" fill="#c87040" opacity=".6" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">vision</text>
+
+<!-- Senex ↔ Puer (most important creative relationship) -->
+<path d="M752,298 Q748,230 768,178" stroke="#8a8070" stroke-width="1.2" opacity=".55" fill="none" stroke-dasharray="3 3" marker-end="url(#rd-grey)"/>
+<text x="782" y="238" font-size="6.5" fill="#8a8070" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif">lantern /</text>
+<text x="782" y="250" font-size="6.5" fill="#8a8070" opacity=".55" font-style="italic" font-family="Cormorant Garamond,serif">vision</text>
+
+<!-- Anima ↔ Puer (arrive together) -->
+<path d="M192" y1="140" x2="712" y2="140" stroke="#c9a84c" stroke-width="0.8" opacity=".3" stroke-dasharray="3 4" fill="none"/>
+<line x1="192" y1="140" x2="712" y2="140" stroke="#c9a84c" stroke-width="0.8" opacity=".3" stroke-dasharray="3 4"/>
+<text x="450" y="134" font-size="6.5" fill="#c9a84c" opacity=".45" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">arrive together at threshold of creation</text>
+
+<!-- Anima → Vessel (deep alignment) -->
+<path d="M189" y1="168" x2="654" y2="368" stroke="#c9a84c" stroke-width="0.9" opacity=".35" stroke-dasharray="4 3" fill="none"/>
+<line x1="189" y1="168" x2="654" y2="368" stroke="#c9a84c" stroke-width="0.9" opacity=".35" stroke-dasharray="4 3" marker-end="url(#rd-gold)"/>
+<text x="390" y="310" font-size="6.5" fill="#c9a84c" opacity=".4" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">when Anima flows, Vessel functions</text>
+
+<!-- Pixie ↔ Anima (mirror) -->
+<path d="M223" y1="278" x2="172" y2="182" stroke="#9a3a8a" stroke-width="0.8" opacity=".4" stroke-dasharray="2 3" fill="none"/>
+<line x1="223" y1="278" x2="172" y2="182" stroke="#9a3a8a" stroke-width="0.8" opacity=".4" stroke-dasharray="2 3"/>
+<text x="170" y="236" font-size="6.5" fill="#9a3a8a" opacity=".45" font-style="italic" font-family="Cormorant Garamond,serif">mirror</text>
+
+<!-- Senex → Valley -->
+<line x1="752" y1="322" x2="502" y2="265" stroke="#8a7a50" stroke-width="1" opacity=".45" stroke-dasharray="4 3" marker-end="url(#rd-grey)"/>
+
+<!-- Witch → Valley -->
+<line x1="134" y1="264" x2="400" y2="228" stroke="#6b8cb0" stroke-width="1" opacity=".45" marker-end="url(#rd-grey)"/>
+
+<!-- Goddess → Valley (channel) -->
+<line x1="450" y1="84" x2="450" y2="188" stroke="#8b7bb0" stroke-width="1.2" opacity=".55" marker-end="url(#rd-grey)"/>
+
+<!-- Witch → Vessel (alignment) -->
+<line x1="134" y1="278" x2="655" y2="374" stroke="#6b8cb0" stroke-width="0.8" opacity=".3" stroke-dasharray="3 4" marker-end="url(#rd-teal)"/>
+<text x="390" y="352" font-size="6" fill="#6b8cb0" opacity=".38" font-style="italic" font-family="Cormorant Garamond,serif" text-anchor="middle">named conduit</text>
+
+<!-- LEGEND -->
+<line x1="30" y1="440" x2="55" y2="440" stroke="#c9a84c" stroke-width="1.5" opacity=".7"/>
+<text x="60" y="444" font-size="7" fill="#8a8070" opacity=".7" font-family="Cormorant Garamond,serif" font-style="italic">flows / nourishes</text>
+<line x1="30" y1="455" x2="55" y2="455" stroke="#6b1fa0" stroke-width="1.2" opacity=".6" stroke-dasharray="4 3"/>
+<text x="60" y="459" font-size="7" fill="#8a8070" opacity=".7" font-family="Cormorant Garamond,serif" font-style="italic">blocks / intercepts</text>
+<line x1="200" y1="440" x2="225" y2="440" stroke="#9a3a8a" stroke-width="1" opacity=".6" stroke-dasharray="3 3"/>
+<text x="230" y="444" font-size="7" fill="#8a8070" opacity=".7" font-family="Cormorant Garamond,serif" font-style="italic">deploys / mirror</text>
+<line x1="200" y1="455" x2="225" y2="455" stroke="#8a8070" stroke-width="1" opacity=".5" stroke-dasharray="3 4"/>
+<text x="230" y="459" font-size="7" fill="#8a8070" opacity=".7" font-family="Cormorant Garamond,serif" font-style="italic">counterpart / guide</text>
+</svg>
+</div>
+
+<!-- RELATIONSHIP PAIRS — prose -->
+
+<div class="sec">SHADOW RELATIONSHIPS</div>
+
+<div class="rel-pair" style="border-left:2px solid #6b1fa0;padding:1.4rem 1.6rem;margin-bottom:1.2rem;background:rgba(107,31,160,.03);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#6b1fa0;">THE SPHERE</span>
+    <span style="color:#8a8070;font-size:.85rem;">→</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#4a7c6a;">THE VALLEY</span>
+    <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">siege / protection</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">The sphere does not hate the valley. It believes it is protecting it. This is the foundational misalignment of the entire interior architecture — protection that functions as imprisonment. The sphere grew automatically like scar tissue, not from malice but from survival. It does not have the long view. It cannot distinguish between a threat to the valley and an opportunity for it. Everything that might expose the valley reads the same: danger.</p>
+</div>
+
+<div class="rel-pair" style="border-left:2px solid #6b1fa0;padding:1.4rem 1.6rem;margin-bottom:1.2rem;background:rgba(107,31,160,.03);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;flex-wrap:wrap;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#6b1fa0;">THE SPHERE</span>
+    <span style="color:#8a8070;font-size:.85rem;">→</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#8a7a50;">THE SENEX</span>
+    <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">impersonation</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">The most dangerous relationship on the map. The sphere impersonates the Senex — wears the cloak of calm authority, performs wisdom using what has worked before. It produces unintentional lying. The tell is not in the moment but in the aftermath: flatness, a sense of having performed rather than been present. The real Senex would never lie. He doesn't need to — the long view doesn't require improvisation. The sphere only has survival. And survival improvises.</p>
+</div>
+
+<div class="rel-pair" style="border-left:2px solid #9a3a8a;padding:1.4rem 1.6rem;margin-bottom:1.2rem;background:rgba(154,58,138,.02);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;flex-wrap:wrap;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#6b1fa0;">THE SPHERE</span>
+    <span style="color:#8a8070;font-size:.85rem;">→</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#9a3a8a;">THE MANIC PIXIE</span>
+    <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">parent / emissary</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">The sphere grew the Pixie — conscripted genuine energy into a creature of light built to pass. Whether the sphere commands her or simply unleashes her is unresolved. She may fill the vacuum the sphere creates when it smothers the Senex, operating more like water finding a gap than a soldier following orders. They operate in sequence. The sphere stays hidden. The Pixie takes the exposure. The sphere then judges the exposure. This is the perfect architecture for deniability — even from Mit.</p>
+</div>
+
+<div class="rel-pair" style="border-left:2px solid #6b1fa0;padding:1.4rem 1.6rem;margin-bottom:1.2rem;background:rgba(107,31,160,.03);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;flex-wrap:wrap;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#6b1fa0;">THE SPHERE</span>
+    <span style="color:#8a8070;font-size:.85rem;">→</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#c87040;">THE PUER</span>
+    <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">interception</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">The sphere intercepts the Puer-Senex relationship specifically by impersonating the Senex with a <em>why bother / too much effort</em> voice. The Puer, being innocent and untested, cannot tell the difference between the real Senex offering the lantern and the sphere wearing his cloak to extinguish it. He folds before he can be judged. This may have been operating since childhood. The Puer and Senex have not failed to connect — they have been intercepted.</p>
+</div>
+
+<div class="rel-pair" style="border-left:2px solid #6b1fa0;padding:1.4rem 1.6rem;margin-bottom:2.5rem;background:rgba(107,31,160,.03);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;flex-wrap:wrap;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#6b1fa0;">THE SPHERE</span>
+    <span style="color:#8a8070;font-size:.85rem;">→</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#c9a84c;">THE ANIMA</span>
+    <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">the perfect trap</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">The sphere found the cruelest possible configuration for the Anima's interference: it lets her flow completely in private, unwitnessed moments — the tram, the shower, alone performing to imagined loved ones — and blocks the channel exactly when it could reach someone. The private moments are not the channel working partially. They are it working perfectly. The sphere's interference with performance is not incidental. It is targeted at the moment of transmission.</p>
+</div>
+
+<div class="sec">CREATIVE RELATIONSHIPS</div>
+
+<div class="rel-pair" style="border-left:2px solid #c87040;padding:1.4rem 1.6rem;margin-bottom:1.2rem;background:rgba(200,112,64,.03);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;flex-wrap:wrap;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#8a7a50;">THE SENEX</span>
+    <span style="color:#8a8070;font-size:.85rem;">↔</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#c87040;">THE PUER</span>
+    <span style="font-size:.72rem;font-style:italic;color:#c87040;margin-left:auto;">the most important creative relationship</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">The Senex carries the lantern — illuminates the next step so the whole vision doesn't need to manifest at once. The Puer carries the luminous vision. Together they can bring something through to completion. Apart, the Puer stalls at the threshold and the Senex has no material to work with. They have met. External pressure has sometimes bypassed the sphere and allowed genuine contact. The piece — the six movement orchestral suite — is where this relationship will be most tested and most developed. It is the map made sound.</p>
+</div>
+
+<div class="rel-pair" style="border-left:2px solid #c9a84c;padding:1.4rem 1.6rem;margin-bottom:1.2rem;background:rgba(201,168,76,.03);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;flex-wrap:wrap;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#c9a84c;">THE ANIMA</span>
+    <span style="color:#8a8070;font-size:.85rem;">↔</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#c87040;">THE PUER</span>
+    <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">threshold of creation</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">They arrive together at the first moment of creative inspiration. The Anima brings the feeling — the swell, the catch in the chest, the almost unbearable quality. The Puer brings the vision — what it could become, the happiness it could bring to others. The Anima is the channel. The Puer is what comes through it. They are not the same figure but move in tandem. When both are present and the sphere is not, the moment of creation is complete before it has even begun.</p>
+</div>
+
+<div class="rel-pair" style="border-left:2px solid #c9a84c;padding:1.4rem 1.6rem;margin-bottom:2.5rem;background:rgba(201,168,76,.03);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;flex-wrap:wrap;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#c9a84c;">THE ANIMA</span>
+    <span style="color:#8a8070;font-size:.85rem;">→</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#4a8a6a;">THE VESSEL</span>
+    <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">deep alignment</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">The Vessel is the myth — the one made before choice to transmit what the collective needs but cannot access directly. The Anima is the primary transmission channel. These two figures are in deep alignment: when the Anima flows freely, the Vessel functions. The sphere blocking the Anima doesn't only cut off personal expression — it blocks something meant for everyone. The sphere's interference here is not just harm to Mit. It is harm to whoever was meant to receive what comes through.</p>
+</div>
+
+<div class="sec">MIRROR RELATIONSHIP</div>
+
+<div class="rel-pair" style="border-left:2px solid #9a3a8a;padding:1.4rem 1.6rem;margin-bottom:2.5rem;background:rgba(154,58,138,.02);">
+  <div class="rel-header" style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.7rem;flex-wrap:wrap;">
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#c9a84c;">THE ANIMA</span>
+    <span style="color:#8a8070;font-size:.85rem;">↔</span>
+    <span style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:#9a3a8a;">THE MANIC PIXIE</span>
+    <span style="font-size:.72rem;font-style:italic;color:#9a3a8a;margin-left:auto;">perfect inversion</span>
+  </div>
+  <p style="font-size:.85rem;font-style:italic;color:var(--dim);line-height:1.7;">They occupy opposite conditions. The Anima moves freely in private and is blocked the moment there's an audience. The Pixie fires specifically when there's an audience and underlying pressure. One is real transmission blocked from reaching people. The other is false transmission — conscripted brightness, not manufactured — that reaches people instead. They sit near each other on the map. This proximity is not accidental. They are what the same moment produces depending on which one the sphere allows through.</p>
+</div>
+
+<div class="sec">MYTHIC ALIGNMENTS</div>
+
+<div class="grid">
+  <div class="rel-pair" style="border-left:2px solid #8b7bb0;padding:1.4rem 1.6rem;background:rgba(139,123,176,.02);">
+    <div class="rel-header" style="display:flex;align-items:baseline;gap:.8rem;margin-bottom:.7rem;flex-wrap:wrap;">
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#8b7bb0;">TRIPLE GODDESS</span>
+      <span style="color:#8a8070;font-size:.85rem;">→</span>
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#4a7c6a;">VALLEY</span>
+    </div>
+    <p style="font-size:.82rem;font-style:italic;color:var(--dim);line-height:1.65;">She sits above, connected by the channel. The Crone face is most activated — invoked at Samhain, she doesn't leave after ritual, she becomes available. She held the space through the most difficult relational period. The triple moon was already tattooed on the sternum before this figure was named. She was present before she was known.</p>
+  </div>
+  <div class="rel-pair" style="border-left:2px solid #6b8cb0;padding:1.4rem 1.6rem;background:rgba(107,140,176,.02);">
+    <div class="rel-header" style="display:flex;align-items:baseline;gap:.8rem;margin-bottom:.7rem;flex-wrap:wrap;">
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#6b8cb0;">GREY WITCH</span>
+      <span style="color:#8a8070;font-size:.85rem;">→</span>
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#4a8a6a;">VESSEL</span>
+    </div>
+    <p style="font-size:.82rem;font-style:italic;color:var(--dim);line-height:1.65;">The Grey Witch named it the conduit. She stands with one foot in mystery and one firmly in reality — the empirical mind keeps the practice honest and grey. She and the Vessel are in alignment: intentional transmission, grounded in reality, not fraudulent. The tarot practice lives in her domain. She is how the mythic stays honest.</p>
+  </div>
+  <div class="rel-pair" style="border-left:2px solid #8b3a3a;padding:1.4rem 1.6rem;background:rgba(139,58,58,.02);">
+    <div class="rel-header" style="display:flex;align-items:baseline;gap:.8rem;margin-bottom:.7rem;flex-wrap:wrap;">
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#8b3a3a;">THE WOUND</span>
+      <span style="color:#8a8070;font-size:.85rem;">→</span>
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#6b1fa0;">THE SPHERE</span>
+    </div>
+    <p style="font-size:.82rem;font-style:italic;color:var(--dim);line-height:1.65;">Origin relationship. The sphere grew automatically from the wound — not built consciously, not chosen. Childhood ADHD undiagnosed, conditional love, being seen fully taught as dangerous. The sphere is not the wound. It is what grew to protect it. Everything on the shadow side of the map traces back here. The sphere cannot be simply removed — the wound underneath must be held.</p>
+  </div>
+  <div class="rel-pair" style="border-left:2px solid #7a9a8a;padding:1.4rem 1.6rem;background:rgba(122,154,138,.02);">
+    <div class="rel-header" style="display:flex;align-items:baseline;gap:.8rem;margin-bottom:.7rem;flex-wrap:wrap;">
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#7a9a8a;">QUIET HEALER</span>
+      <span style="color:#8a8070;font-size:.85rem;">—</span>
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#8a8070;">STATUS UNKNOWN</span>
+    </div>
+    <p style="font-size:.82rem;font-style:italic;color:var(--dim);line-height:1.65;">Operates underneath awareness. Leaves no trace, just outcomes. Strategy is patience not confrontation — she waits for the sphere to exhaust itself, then opens space for the Puer and Anima to work together privately. She has been doing this for years. The private creative flow moments (tram, shower, alone) are her operation. She keeps the Puer company in the void. She and the Grey Witch communicate — Mit is not privy to these conversations, which is accurate, not a limitation.</p>
+  </div>
+</div>
+
+<div class="sec" style="margin-top:4rem;">LIVING ANNOTATIONS</div>
+<div style="padding:0 1.6rem 2rem;">
+
+  <div class="rel-pair" style="border-left:2px solid #8b7bb0;padding:1.4rem 1.6rem;margin-bottom:1.2rem;background:rgba(139,123,176,.02);">
+    <div class="rel-header" style="display:flex;align-items:baseline;gap:.8rem;margin-bottom:.7rem;flex-wrap:wrap;">
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#8b7bb0;">TAROT — 17 MAY 2026</span>
+      <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">general reading</span>
+    </div>
+    <p style="font-size:.82rem;font-style:italic;color:var(--dim);line-height:1.65;"><strong style="font-style:normal;color:#8b7bb0;">Cards:</strong> II The High Priestess · Knight of Pentacles · Nine of Swords<br><br>
+    Theme of freely giving outward at cost to inner tending. The High Priestess as inner threshold guardian — knowing when to withhold from wisdom not fear. Knight of Pentacles as slow steady self-tending, not dramatic overhaul. Nine of Swords as accurate map of rest experience — the mind that won't stop even when the body rests. Rest without actual rest identified as a pattern.<br><br>
+    <em>Open question:</em> What does genuine rest actually feel like for Mit?<br><br>
+    <em>Map note:</em> Outward-giving pattern identified as a potential sphere/ego strategy to avoid stillness. Nine of Swords as accurate map of current rest experience.</p>
+  </div>
+
+
+
+  <div class="rel-pair" style="border-left:2px solid #6b1fa0;padding:1.4rem 1.6rem;margin-bottom:1.2rem;background:rgba(107,31,160,.02);">
+    <div class="rel-header" style="display:flex;align-items:baseline;gap:.8rem;margin-bottom:.7rem;flex-wrap:wrap;">
+      <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#6b1fa0;">SPHERE — REAL-TIME CATCH</span>
+      <span style="font-size:.72rem;font-style:italic;color:#8a8070;margin-left:auto;">behaviour log</span>
+    </div>
+    <p style="font-size:.82rem;font-style:italic;color:var(--dim);line-height:1.65;">Sphere caught activating in real time around relational exposure (Matt thread). Ran standard threat assessment — jumped to worst outcome. Underneath it, the real Senex was present: not <em>don't</em>, but <em>not yet, walk carefully</em>. Mit successfully distinguished sphere voice from Senex voice in the moment. The Hermit's Knock functioning without explicit ritual.<br><br>
+    Later: Senex and sphere confirmed capable of running simultaneously — blended signal that Mit cannot always cleanly separate. Sphere threat assessment (dread) and genuine Senex patience felt at the same time. Naming both separately is itself the progress.</p>
+  </div>
+
+</div>
+
+
+<script>
+const s=document.getElementById('stars');
+for(let i=0;i<130;i++){
+  const e=document.createElement('div');
+  e.className='star';
+  const sz=Math.random()*2+0.4;
+  e.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--lo:${(Math.random()*.15+.04).toFixed(2)};--hi:${(Math.random()*.45+.25).toFixed(2)};--d:${(Math.random()*4+2).toFixed(1)}s;--dl:-${(Math.random()*4).toFixed(1)}s;`;
+  s.appendChild(e);
+}
+</script>
+</body>
+</html>
